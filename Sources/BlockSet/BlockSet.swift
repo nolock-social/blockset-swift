@@ -9,24 +9,40 @@ extension UInt8 {
     }
 }
 
+extension Character {
+    private static let charToU5: [Character: UInt8] = [
+        "0": 0x00, "1": 0x01, "2": 0x02, "3": 0x03, "4": 0x04, "5": 0x05, "6": 0x06, "7": 0x07,
+        "8": 0x08, "9": 0x09, "a": 0x0A, "b": 0x0B, "c": 0x0C, "d": 0x0D, "e": 0x0E, "f": 0x0F,
+        "g": 0x10, "h": 0x11, "j": 0x12, "k": 0x13, "m": 0x14, "n": 0x15, "p": 0x16, "q": 0x17,
+        "r": 0x18, "s": 0x19, "t": 0x1A, "v": 0x1B, "w": 0x1C, "x": 0x1D, "y": 0x1E, "z": 0x1F,
+    ]
+    func fromBase32() -> UInt8 {
+        Self.charToU5[self]!
+    }
+}
+
 private protocol BitSplitState {
     static var inputBits: UInt8 { get }
     static var outputBits: UInt8 { get }
+    associatedtype Input
+    associatedtype Output
+    static func fromInput(_ input: Input) -> UInt8
+    static func toOutput(_ output: UInt8) -> Output
 }
 
 private struct State<S: BitSplitState> {
     // private:
     private var value: UInt16 = 0
     private var length: UInt8 = 0
-    private func output() -> UInt8 {
-        UInt8(self.value >> (16 - S.outputBits))
+    private func output() -> S.Output {
+        S.toOutput(UInt8(self.value >> (16 - S.outputBits)))
     }
     // public:
-    mutating func push(_ value: UInt8) {
-        self.value |= UInt16(value) << (16 - S.inputBits - self.length)
+    mutating func push(_ value: S.Input) {
+        self.value |= UInt16(S.fromInput(value)) << (16 - S.inputBits - self.length)
         self.length += S.inputBits
     }
-    mutating func pop() -> UInt8? {
+    mutating func pop() -> S.Output? {
         guard self.length >= S.outputBits else {
             return nil
         }
@@ -35,60 +51,61 @@ private struct State<S: BitSplitState> {
         self.length -= S.outputBits
         return result
     }
-    func last() -> UInt8? {
+    mutating func last() -> S.Output? {
         guard self.length != 0 else {
             return nil
         }
+        self.length = 0
         return self.output()
     }
 }
 
-struct Bit8To5: BitSplitState {
-    static let inputBits: UInt8 = 8
-    static let outputBits: UInt8 = 5
-}
-
-private struct U8ToCharState {
+private struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorProtocol where I.Element == S.Input {
     // private:
-    private var value: UInt16 = 0
-    private var length: UInt8 = 0
-    private func base32() -> Character {
-        UInt8(self.value >> 11).base32()
-    }
+    private var state: State<S> = State()
+    private var iterator: I
     // public:
-    mutating func push(_ value: UInt8) {
-        self.value |= UInt16(value) << (8 - self.length)
-        self.length += 8
+    init(_ iterator: I) {
+        self.iterator = iterator
     }
-    mutating func pop() -> Character? {
-        guard self.length >= 5 else {
-            return nil
+    mutating func next() -> S.Output? {
+        if let value = self.state.pop() {
+            return value
         }
-        let result = self.base32()
-        self.value <<= 5
-        self.length -= 5
-        return result
-    }
-    func last() -> Character? {
-        guard self.length != 0 else {
-            return nil
-        }
-        return self.base32()
-    }
-}
-
-extension Sequence<UInt8> {
-    public func base32() -> String {
-        var state = U8ToCharState()
-        var result = ""
-        for byte in self {
-            state.push(byte)
-            while let value = state.pop() {
-                result.append(value)
+        while let value = self.iterator.next() {
+            self.state.push(value)
+            if let value = self.state.pop() {
+                return value
             }
         }
-        if let value = state.last() {
-            result.append(value)
+        return self.state.last()
+    }
+}
+
+struct U8ToChar: BitSplitState {
+    static let inputBits: UInt8 = 8
+    static let outputBits: UInt8 = 5
+    typealias Input = UInt8
+    typealias Output = Character
+    static func fromInput(_ input: Input) -> UInt8 { input }
+    static func toOutput(_ output: UInt8) -> Output { output.base32() }
+}
+
+struct CharToU8: BitSplitState {
+    static let inputBits: UInt8 = 5
+    static let outputBits: UInt8 = 8
+    typealias Input = Character
+    typealias Output = UInt8
+    static func fromInput(_ input: Input) -> UInt8 { input.fromBase32() }
+    static func toOutput(_ output: UInt8) -> Output { output }
+}
+
+extension Sequence where Element == UInt8 {
+    public func base32() -> String {
+        var iterator = StateIterator<U8ToChar, Self.Iterator>(self.makeIterator())
+        var result = ""
+        while let char = iterator.next() {
+            result.append(char)
         }
         return result
     }
