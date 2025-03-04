@@ -10,11 +10,13 @@ extension UInt8 {
 }
 
 private struct Remainder {
+    // private:
     private var value: UInt16 = 0
     private var length: UInt8 = 0
     private func base32() -> Character {
         UInt8(self.value >> 11).base32()
     }
+    // public:
     public mutating func push(_ value: UInt8) {
         self.value |= UInt16(value) << (8 - self.length)
         self.length += 8
