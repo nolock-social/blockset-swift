@@ -21,7 +21,7 @@ extension Character {
     }
 }
 
-private protocol BitSplitState {
+protocol BitSplitState {
     static var inputBits: UInt8 { get }
     static var outputBits: UInt8 { get }
     associatedtype Input
@@ -60,7 +60,7 @@ private struct State<S: BitSplitState> {
     }
 }
 
-private struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorProtocol where I.Element == S.Input {
+struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorProtocol where I.Element == S.Input {
     // private:
     private var state: State<S> = State()
     private var iterator: I
@@ -79,6 +79,17 @@ private struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorPro
             }
         }
         return self.state.last()
+    }
+}
+
+struct StateSequence<S: BitSplitState, Base: Sequence>: Sequence where Base.Element == S.Input {
+    private let base: Base
+    // public:
+    init(_ base: Base) {
+        self.base = base
+    }
+    func makeIterator() -> StateIterator<S, Base.Iterator> {
+        StateIterator(base.makeIterator())
     }
 }
 
@@ -101,12 +112,10 @@ struct CharToU8: BitSplitState {
 }
 
 extension Sequence where Element == UInt8 {
-    public func base32() -> String {
-        var iterator = StateIterator<U8ToChar, Self.Iterator>(self.makeIterator())
-        var result = ""
-        while let char = iterator.next() {
-            result.append(char)
-        }
-        return result
+    func asBase32Sequence() -> StateSequence<U8ToChar, Self> {
+        StateSequence(self)
+    }
+    func base32() -> String {
+        self.asBase32Sequence().reduce(into: "") { $0.append($1) }
     }
 }
