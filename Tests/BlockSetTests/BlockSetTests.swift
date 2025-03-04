@@ -1,5 +1,5 @@
 import Testing
-@testable import blockset_swift
+@testable import BlockSet
 
 @Test func example() async throws {
     #expect(UInt8(0).base32() == "0")

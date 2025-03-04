@@ -4,21 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "BlocksetSwift",
+    name: "BlockSet",
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "BlocksetSwift",
-            targets: ["blockset-swift"]),
+            name: "BlockSet",
+            targets: ["BlockSet"]),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "blockset-swift"),
+            name: "BlockSet"),
         .testTarget(
-            name: "blockset-swiftTests",
-            dependencies: ["blockset-swift"]
+            name: "BlockSetTests",
+            dependencies: ["BlockSet"]
         ),
     ]
 )
