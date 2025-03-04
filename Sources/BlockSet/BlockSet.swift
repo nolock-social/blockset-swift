@@ -10,17 +10,17 @@ extension UInt8 {
 }
 
 private struct Remainder {
-    private var value: UInt16
-    private var length: UInt8
-    public static func new() -> Remainder {
-        Remainder(value: 0, length: 0)
+    private var value: UInt16 = 0
+    private var length: UInt8 = 0
+    private func base32() -> Character {
+        UInt8(self.value >> 11).base32()
     }
     public mutating func push(_ value: UInt8) {
         self.value |= UInt16(value) << (8 - self.length)
         self.length += 8
     }
     public mutating func pop() -> Character? {
-        if self.length < 5 {
+        guard self.length >= 5 else {
             return nil
         }
         let result = self.base32()
@@ -29,19 +29,16 @@ private struct Remainder {
         return result
     }
     public func last() -> Character? {
-        if self.length == 0 {
+        guard self.length != 0 else {
             return nil
         }
         return self.base32()
-    }
-    private func base32() -> Character {
-        UInt8(self.value >> 11).base32()
     }
 }
 
 extension Sequence<UInt8> {
     public func base32() -> String {
-        var remainder = Remainder.new()
+        var remainder = Remainder()
         var result = ""
         for byte in self {
             remainder.push(byte)
