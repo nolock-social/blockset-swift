@@ -1,52 +1,54 @@
-protocol BitSplitState {
-    static var inputBits: UInt8 { get }
-    static var outputBits: UInt8 { get }
+struct SplitFactory: Factory {
+    typealias Element = SplitState
+    let inputBits: UInt8
+    let outputBits: UInt8
+    init(_ inputBits: UInt8, _ outputBits: UInt8) {
+        self.inputBits = inputBits
+        self.outputBits = outputBits
+    }
+    func create() -> SplitState {
+        SplitState(self)
+    }
 }
 
-struct SplitState<S: BitSplitState>: ScanState {
+struct SplitState: ScanState {
     // private:
-    private let inputBits = S.inputBits
-    private let outputBits = S.outputBits
+    private let inputBits: UInt8
+    private let outputBits: UInt8
     private var value: UInt16 = 0
     private var length: UInt8 = 0
     private func output() -> UInt8 {
-        UInt8(self.value >> (16 - S.outputBits))
+        UInt8(self.value >> (16 - outputBits))
     }
     // public:
-    mutating func push(_ value: UInt8) {
-        self.value |= UInt16(value) << (16 - S.inputBits - self.length)
-        self.length += S.inputBits
+    init(_ f: SplitFactory) {
+        self.inputBits = f.inputBits
+        self.outputBits = f.outputBits
+    }
+    mutating func push(_ input: UInt8) {
+        value |= UInt16(input) << (16 - inputBits - length)
+        length += inputBits
     }
     mutating func pop() -> UInt8? {
-        guard self.length >= S.outputBits else {
+        guard length >= outputBits else {
             return nil
         }
         let result = self.output()
-        self.value <<= S.outputBits
-        self.length -= S.outputBits
+        value <<= outputBits
+        length -= outputBits
         return result
     }
     mutating func last() -> UInt8? {
-        guard self.length != 0 else {
+        guard length != 0 else {
             return nil
         }
-        self.length = 0
-        return self.output()
+        length = 0
+        return output()
     }
 }
 
-struct U8To5: BitSplitState {
-    static let inputBits: UInt8 = 8
-    static let outputBits: UInt8 = 5
-}
-
-struct U5To8: BitSplitState {
-    static let inputBits: UInt8 = 5
-    static let outputBits: UInt8 = 8
-}
-
 extension Sequence where Element == UInt8 {
-    func bitSplit<S: BitSplitState>(_ _: S) -> ScanSequence<SplitState<S>, Self> {
-        ScanSequence(self)
+    func bitSplit(_ f: SplitFactory) -> ScanSequence<SplitFactory, Self> {
+        ScanSequence(f, self)
     }
 }

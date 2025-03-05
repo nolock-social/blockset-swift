@@ -1,7 +1,6 @@
 protocol ScanState {
     associatedtype Input
     associatedtype Output
-    init()
     mutating func push(_ value: Input)
     mutating func pop() -> Output?
     mutating func last() -> Output?
@@ -9,10 +8,11 @@ protocol ScanState {
 
 struct ScanIterator<S: ScanState, I: IteratorProtocol>: IteratorProtocol where I.Element == S.Input {
     // private:
-    private var state: S = S()
+    private var state: S
     private var iterator: I
     // public:
-    init(_ iterator: I) {
+    init(_ state: S, _ iterator: I) {
+        self.state = state
         self.iterator = iterator
     }
     mutating func next() -> S.Output? {
@@ -29,14 +29,21 @@ struct ScanIterator<S: ScanState, I: IteratorProtocol>: IteratorProtocol where I
     }
 }
 
-struct ScanSequence<S: ScanState, B: Sequence>: Sequence where B.Element == S.Input {
+protocol Factory {
+    associatedtype Element
+    func create() -> Element
+}
+
+struct ScanSequence<F: Factory, B: Sequence>: Sequence where B.Element == F.Element.Input, F.Element: ScanState {
     // private:
+    private let factory: F
     private let base: B
     // public:
-    init(_ base: B) {
+    init(_ factory: F, _ base: B) {
+        self.factory = factory
         self.base = base
     }
-    func makeIterator() -> ScanIterator<S, B.Iterator> {
-        ScanIterator(base.makeIterator())
+    func makeIterator() -> ScanIterator<F.Element, B.Iterator> {
+        ScanIterator(factory.create(), base.makeIterator())
     }
 }
