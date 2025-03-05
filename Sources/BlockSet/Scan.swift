@@ -29,14 +29,14 @@ struct ScanIterator<S: ScanState, I: IteratorProtocol>: IteratorProtocol where I
     }
 }
 
-struct ScanSequence<S: ScanState, Base: Sequence>: Sequence where Base.Element == S.Input {
+struct ScanSequence<S: ScanState, B: Sequence>: Sequence where B.Element == S.Input {
     // private:
-    private let base: Base
+    private let base: B
     // public:
-    init(_ base: Base) {
+    init(_ base: B) {
         self.base = base
     }
-    func makeIterator() -> ScanIterator<S, Base.Iterator> {
+    func makeIterator() -> ScanIterator<S, B.Iterator> {
         ScanIterator(base.makeIterator())
     }
 }
