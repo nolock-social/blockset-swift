@@ -1,24 +1,3 @@
-extension UInt8 {
-    // https://en.wikipedia.org/wiki/Base32#Crockford's_Base32
-    private static let u5ToChar: [Character] = Array("0123456789abcdefghjkmnpqrstvwxyz")
-    func base32() -> Character {
-        Self.u5ToChar[Int(self)]
-    }
-}
-
-extension Character {
-    private static let charToU5: [Character: UInt8] = {
-        var mapping = [Character: UInt8]()
-        for i in UInt8(0)..<32 {
-            mapping[i.base32()] = i
-        }
-        return mapping
-    }()
-    func fromBase32() -> UInt8 {
-        Self.charToU5[self]!
-    }
-}
-
 protocol BitSplitState {
     static var inputBits: UInt8 { get }
     static var outputBits: UInt8 { get }
@@ -26,6 +5,8 @@ protocol BitSplitState {
 
 struct SplitState<S: BitSplitState>: ScanState {
     // private:
+    private let inputBits = S.inputBits
+    private let outputBits = S.outputBits
     private var value: UInt16 = 0
     private var length: UInt8 = 0
     private func output() -> UInt8 {
@@ -65,19 +46,7 @@ struct U5To8: BitSplitState {
 }
 
 extension Sequence where Element == UInt8 {
-    func u8ToU5() -> ScanSequence<SplitState<U8To5>, Self> {
+    func bitSplit<S: BitSplitState>(_ _: S) -> ScanSequence<SplitState<S>, Self> {
         ScanSequence(self)
-    }
-    func u5ToU8() -> ScanSequence<SplitState<U5To8>, Self> {
-        ScanSequence(self)
-    }
-    func base32() -> String {
-        self.u8ToU5().reduce(into: "") { $0.append($1.base32()) }
-    }
-}
-
-extension Sequence where Element == Character {
-    func fromBase32() -> [UInt8] {
-        self.map { $0.fromBase32() }.u5ToU8().reduce(into: []) { $0.append($1) }
     }
 }
