@@ -24,7 +24,16 @@ protocol BitSplitState {
     static var outputBits: UInt8 { get }
 }
 
-private struct State<S: BitSplitState> {
+protocol ScanState {
+    associatedtype Input
+    associatedtype Output
+    init()
+    mutating func push(_ value: Input)
+    mutating func pop() -> Output?
+    mutating func last() -> Output?
+}
+
+struct SplitState<S: BitSplitState>: ScanState {
     // private:
     private var value: UInt16 = 0
     private var length: UInt8 = 0
@@ -54,15 +63,15 @@ private struct State<S: BitSplitState> {
     }
 }
 
-struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorProtocol where I.Element == UInt8 {
+struct ScanIterator<S: ScanState, I: IteratorProtocol>: IteratorProtocol where I.Element == S.Input {
     // private:
-    private var state: State<S> = State()
+    private var state: S = S()
     private var iterator: I
     // public:
     init(_ iterator: I) {
         self.iterator = iterator
     }
-    mutating func next() -> UInt8? {
+    mutating func next() -> S.Output? {
         if let value = self.state.pop() {
             return value
         }
@@ -76,14 +85,15 @@ struct StateIterator<S: BitSplitState, I: IteratorProtocol>: IteratorProtocol wh
     }
 }
 
-struct StateSequence<S: BitSplitState, Base: Sequence>: Sequence where Base.Element == UInt8 {
+struct ScanSequence<S: ScanState, Base: Sequence>: Sequence where Base.Element == S.Input {
+    // private:
     private let base: Base
     // public:
     init(_ base: Base) {
         self.base = base
     }
-    func makeIterator() -> StateIterator<S, Base.Iterator> {
-        StateIterator(base.makeIterator())
+    func makeIterator() -> ScanIterator<S, Base.Iterator> {
+        ScanIterator(base.makeIterator())
     }
 }
 
@@ -98,8 +108,8 @@ struct CharToU8: BitSplitState {
 }
 
 extension Sequence where Element == UInt8 {
-    func u8ToU5() -> StateSequence<U8ToChar, Self> {
-        StateSequence(self)
+    func u8ToU5() -> ScanSequence<SplitState<U8ToChar>, Self> {
+        ScanSequence(self)
     }
     func base32() -> String {
         self.u8ToU5().reduce(into: "") { $0.append($1.base32()) }
@@ -107,8 +117,8 @@ extension Sequence where Element == UInt8 {
 }
 
 extension Sequence where Element == UInt8 {
-    func u5ToU8() -> StateSequence<CharToU8, Self> {
-        StateSequence(self)
+    func u5ToU8() -> ScanSequence<SplitState<CharToU8>, Self> {
+        ScanSequence(self)
     }
 }
 
