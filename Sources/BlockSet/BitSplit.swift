@@ -13,29 +13,27 @@ struct SplitFactory: Factory {
 
 struct SplitState: ScanState {
     // private:
-    private let inputBits: UInt8
-    private let outputBits: UInt8
+    private let f: SplitFactory
     private var value: UInt16 = 0
     private var length: UInt8 = 0
     private func output() -> UInt8 {
-        UInt8(self.value >> (16 - outputBits))
+        UInt8(self.value >> (16 - f.outputBits))
     }
     // public:
     init(_ f: SplitFactory) {
-        self.inputBits = f.inputBits
-        self.outputBits = f.outputBits
+        self.f = f
     }
     mutating func push(_ input: UInt8) {
-        value |= UInt16(input) << (16 - inputBits - length)
-        length += inputBits
+        value |= UInt16(input) << (16 - f.inputBits - length)
+        length += f.inputBits
     }
     mutating func pop() -> UInt8? {
-        guard length >= outputBits else {
+        guard length >= f.outputBits else {
             return nil
         }
         let result = self.output()
-        value <<= outputBits
-        length -= outputBits
+        value <<= f.outputBits
+        length -= f.outputBits
         return result
     }
     mutating func last() -> UInt8? {
