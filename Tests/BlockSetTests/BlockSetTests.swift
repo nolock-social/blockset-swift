@@ -10,4 +10,5 @@ import Testing
     //
     let x: [UInt8] = [0b1011_0111, 0b010_10010, 0b1011_1001]
     #expect(x.base32() == "px9bj")
+    #expect(Array("px9bj").fromBase32() == x + [0])
 }

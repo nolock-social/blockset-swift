@@ -6,7 +6,7 @@ struct SplitFactory: Factory {
         self.inputBits = inputBits
         self.outputBits = outputBits
     }
-    func create() -> SplitState {
+    func callAsFunction() -> SplitState {
         SplitState(self)
     }
 }
@@ -17,7 +17,7 @@ struct SplitState: ScanState {
     private var value: UInt16 = 0
     private var length: UInt8 = 0
     private func output() -> UInt8 {
-        UInt8(self.value >> (16 - f.outputBits))
+        UInt8(value >> (16 - f.outputBits))
     }
     // public:
     init(_ f: SplitFactory) {

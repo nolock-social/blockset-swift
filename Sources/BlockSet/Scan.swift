@@ -29,11 +29,6 @@ struct ScanIterator<S: ScanState, I: IteratorProtocol>: IteratorProtocol where I
     }
 }
 
-protocol Factory {
-    associatedtype Element
-    func create() -> Element
-}
-
 struct ScanSequence<F: Factory, B: Sequence>: Sequence where B.Element == F.Element.Input, F.Element: ScanState {
     // private:
     private let factory: F
@@ -44,6 +39,6 @@ struct ScanSequence<F: Factory, B: Sequence>: Sequence where B.Element == F.Elem
         self.base = base
     }
     func makeIterator() -> ScanIterator<F.Element, B.Iterator> {
-        ScanIterator(factory.create(), base.makeIterator())
+        ScanIterator(factory(), base.makeIterator())
     }
 }
