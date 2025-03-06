@@ -1,12 +1,12 @@
 import Foundation
 import Crypto
 
-struct FileCas: Cas {
+struct MemCas: Cas {
     private var blocks: [String: Data] = [:]
 
-    mutating func add(_ block: Data) -> String? {
-        let id = SHA256.hash(data: block).base32()
-        blocks[id] = block
+    mutating func add(_ data: Data) -> String? {
+        let id = SHA256.hash(data: data).base32()
+        blocks[id] = data
         return id
     }
 
