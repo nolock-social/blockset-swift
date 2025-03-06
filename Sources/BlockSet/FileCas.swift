@@ -4,8 +4,8 @@ import Crypto
 struct FileCas: Cas {
     private var blocks: [String: Data] = [:]
 
-    func add(_ block: Data) -> String? {
-        let id = block.sha256().base32()
+    mutating func add(_ block: Data) -> String? {
+        let id = SHA256.hash(data: block).base32()
         blocks[id] = block
         return id
     }
