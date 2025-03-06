@@ -1,3 +1,5 @@
+import Foundation
+
 struct FileCas: Cas {
     private var blocks: [String: Data] = [:]
 
