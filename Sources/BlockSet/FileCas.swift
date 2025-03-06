@@ -1,4 +1,5 @@
 import Foundation
+import Crypto
 
 struct FileCas: Cas {
     private var blocks: [String: Data] = [:]
