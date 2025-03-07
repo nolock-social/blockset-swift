@@ -7,6 +7,7 @@ let package = Package(
     name: "BlockSet",
     platforms: [
         .macOS(.v11),
+        .iOS(.v13),
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.

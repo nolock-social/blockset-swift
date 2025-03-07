@@ -1,7 +1,7 @@
 import Foundation
 import Crypto
 
-struct MemCas: Cas {
+public struct MemCas: Cas {
     private var blocks: [String: Data] = [:]
 
     mutating func add(_ data: Data) -> String? {
