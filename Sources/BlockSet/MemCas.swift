@@ -13,4 +13,8 @@ struct MemCas: Cas {
     func get(_ id: String) -> Data? {
         blocks[id]
     }
+
+    func list() -> AnySequence<String> {
+        AnySequence(self.blocks.keys)
+    }
 }

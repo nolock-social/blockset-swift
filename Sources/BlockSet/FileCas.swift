@@ -22,4 +22,8 @@ struct FileCas: Cas {
         path(id)
         fatalError("not implemented")
     }
+
+    func list() -> AnySequence<String> {
+        fatalError("not implemented")
+    }
 }
