@@ -17,9 +17,9 @@ public struct FileCas: Cas {
         self.dir = URL(fileURLWithPath: dir)
     }
 
-    public mutating func add(_ data: Data) -> String? {
+    public mutating func add(_ data: Data) throws -> String {
         let id = SHA256.hash(data: data).base32()
-        try! data.write(to: path(id))
+        try data.write(to: path(id))
         return id
     }
 
