@@ -1,5 +1,11 @@
-import Foundation
 import Crypto
+import Foundation
+
+infix operator |> : AdditionPrecedence
+
+func |> <A, B>(value: A, transform: (A) -> B) -> B {
+    transform(value)
+}
 
 public struct FileCas: Cas {
 
@@ -13,8 +19,8 @@ public struct FileCas: Cas {
 
     // public:
 
-    public init(dir: String) {
-        self.dir = URL(fileURLWithPath: dir)
+    public init(_ dir: URL) {
+        self.dir = dir
     }
 
     public mutating func add(_ data: Data) throws -> String {
@@ -24,12 +30,16 @@ public struct FileCas: Cas {
     }
 
     public func get(_ id: String) -> Data? {
-        try? Data(contentsOf: path(id))
+        // TODO: check errors. if the file doesn't exist, return nil
+        // otherwise, throw the error
+        path(id) |> { try? Data(contentsOf: $0) }
     }
 
-    public func list() -> AnySequence<String> {
-        let x = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
-            .map { $0.lastPathComponent }
-        return AnySequence(x ?? [])
+    public func list() throws -> AnySequence<String> {
+        try FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        )
+        .map { $0.lastPathComponent }
+        |> AnySequence.init
     }
 }
