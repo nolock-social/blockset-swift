@@ -26,14 +26,14 @@ public struct FileCas: Cas {
     public func get(_ id: String) -> Data? {
         // TODO: check errors. if the file doesn't exist, return nil
         // otherwise, throw the error
-        path(id) |> { try? Data(contentsOf: $0) }
+        try? Data(contentsOf: path(id))
     }
 
     public func list() throws -> AnySequence<String> {
-        try FileManager.default.contentsOfDirectory(
+        let result = try FileManager.default.contentsOfDirectory(
             at: dir, includingPropertiesForKeys: nil
         )
         .map { $0.lastPathComponent }
-        |> AnySequence.init
+        return AnySequence(result)
     }
 }

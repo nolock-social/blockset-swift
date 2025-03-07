@@ -1,6 +1,6 @@
 extension UInt8 {
     // https://en.wikipedia.org/wiki/Base32#Crockford's_Base32
-    private static let u5ToChar: [Character] = "0123456789abcdefghjkmnpqrstvwxyz" |> Array.init
+    private static let u5ToChar: [Character] = Array("0123456789abcdefghjkmnpqrstvwxyz")
     func base32() -> Character {
         Self.u5ToChar[Int(self)]
     }
