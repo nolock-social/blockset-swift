@@ -1,5 +1,8 @@
 import Foundation
+
+#if canImport(Crypto)
 import Crypto
+#endif
 
 struct FileCas: Cas {
     private let dir: String

@@ -1,5 +1,8 @@
 import Foundation
+
+#if canImport(Crypto)
 import Crypto
+#endif
 
 public struct MemCas: Cas {
     private var blocks: [String: Data] = [:]
