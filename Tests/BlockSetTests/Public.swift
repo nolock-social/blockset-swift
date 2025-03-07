@@ -11,7 +11,7 @@ import BlockSet
 }
 
 @Test func publicFileCas() async throws {
-    let dir = "./_test"
+    let dir = ".test"
     try? FileManager.default.removeItem(atPath: dir)
     try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     var fileCas = FileCas(dir: dir)
@@ -19,4 +19,5 @@ import BlockSet
     let id = fileCas.add(data)!
     #expect(fileCas.get(id) == data)
     #expect(fileCas.get("nonexistent") == nil)
+    #expect(fileCas.list().contains(id))
 }

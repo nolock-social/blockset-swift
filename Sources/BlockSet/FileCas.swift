@@ -5,16 +5,16 @@ public struct FileCas: Cas {
 
     // private:
 
-    private let dir: String
+    private let dir: URL
 
     private func path(_ id: String) -> URL {
-        URL(fileURLWithPath: dir).appendingPathComponent(id)
+        dir.appendingPathComponent(id)
     }
 
     // public:
 
     public init(dir: String) {
-        self.dir = dir
+        self.dir = URL(fileURLWithPath: dir)
     }
 
     public mutating func add(_ data: Data) -> String? {
@@ -30,6 +30,13 @@ public struct FileCas: Cas {
     }
 
     public func list() -> AnySequence<String> {
-        fatalError("not implemented")
+        let x = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+            .map { $0.lastPathComponent }
+        return AnySequence(x ?? [])
+        /*
+        { try FileManager.default.contentsOfDirectory(at: path, includingPropertiesForKeys: nil) }
+            .map { $0.map { path.lastPathComponent } }
+            ?? AnySequence([])
+            */
     }
 }
