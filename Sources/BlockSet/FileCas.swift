@@ -19,14 +19,12 @@ public struct FileCas: Cas {
 
     public mutating func add(_ data: Data) -> String? {
         let id = SHA256.hash(data: data).base32()
-        let path = self.path(id)
-        try! data.write(to: path)
+        try! data.write(to: path(id))
         return id
     }
 
     public func get(_ id: String) -> Data? {
-        let path = self.path(id)
-        return try? Data(contentsOf: path)
+        try? Data(contentsOf: path(id))
     }
 
     public func list() -> AnySequence<String> {
