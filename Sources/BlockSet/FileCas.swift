@@ -33,10 +33,5 @@ public struct FileCas: Cas {
         let x = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
             .map { $0.lastPathComponent }
         return AnySequence(x ?? [])
-        /*
-        { try FileManager.default.contentsOfDirectory(at: path, includingPropertiesForKeys: nil) }
-            .map { $0.map { path.lastPathComponent } }
-            ?? AnySequence([])
-            */
     }
 }
