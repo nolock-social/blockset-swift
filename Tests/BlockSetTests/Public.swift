@@ -9,3 +9,14 @@ import BlockSet
     #expect(memCas.get(id) == data)
     #expect(memCas.get("nonexistent") == nil)
 }
+
+@Test func publicFileCas() async throws {
+    let dir = "./_test"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    var fileCas = FileCas(dir: dir)
+    let data = Data([0, 1, 2, 3, 4])
+    let id = fileCas.add(data)!
+    #expect(fileCas.get(id) == data)
+    #expect(fileCas.get("nonexistent") == nil)
+}

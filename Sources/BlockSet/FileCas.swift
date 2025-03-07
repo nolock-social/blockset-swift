@@ -1,29 +1,35 @@
 import Foundation
 import Crypto
 
-struct FileCas: Cas {
+public struct FileCas: Cas {
+
+    // private:
+
     private let dir: String
 
     private func path(_ id: String) -> URL {
-        URL(string: dir)!.appendingPathComponent(id)
+        URL(fileURLWithPath: dir).appendingPathComponent(id)
     }
 
-    init(dir: String) {
+    // public:
+
+    public init(dir: String) {
         self.dir = dir
     }
 
-    mutating func add(_ data: Data) -> String? {
+    public mutating func add(_ data: Data) -> String? {
         let id = SHA256.hash(data: data).base32()
         let path = self.path(id)
+        try! data.write(to: path)
         return id
     }
 
-    func get(_ id: String) -> Data? {
-        path(id)
-        fatalError("not implemented")
+    public func get(_ id: String) -> Data? {
+        let path = self.path(id)
+        return try? Data(contentsOf: path)
     }
 
-    func list() -> AnySequence<String> {
+    public func list() -> AnySequence<String> {
         fatalError("not implemented")
     }
 }
