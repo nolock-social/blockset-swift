@@ -6,7 +6,7 @@ public struct MemCas: Cas {
 
     public init() {}
 
-    public mutating func add(_ data: Data) -> String? {
+    public mutating func add(_ data: Data) -> String {
         let id = SHA256.hash(data: data).base32()
         blocks[id] = data
         return id

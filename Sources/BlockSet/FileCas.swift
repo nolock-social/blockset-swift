@@ -1,5 +1,5 @@
-import Foundation
 import Crypto
+import Foundation
 
 public struct FileCas: Cas {
 
@@ -13,30 +13,27 @@ public struct FileCas: Cas {
 
     // public:
 
-    public init(dir: String) {
-        self.dir = URL(fileURLWithPath: dir)
+    public init(_ dir: URL) {
+        self.dir = dir
     }
 
-    public mutating func add(_ data: Data) -> String? {
+    public mutating func add(_ data: Data) throws -> String {
         let id = SHA256.hash(data: data).base32()
-        let path = self.path(id)
-        try! data.write(to: path)
+        try data.write(to: path(id))
         return id
     }
 
     public func get(_ id: String) -> Data? {
-        let path = self.path(id)
-        return try? Data(contentsOf: path)
+        // TODO: check errors. if the file doesn't exist, return nil
+        // otherwise, throw the error
+        try? Data(contentsOf: path(id))
     }
 
-    public func list() -> AnySequence<String> {
-        let x = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
-            .map { $0.lastPathComponent }
-        return AnySequence(x ?? [])
-        /*
-        { try FileManager.default.contentsOfDirectory(at: path, includingPropertiesForKeys: nil) }
-            .map { $0.map { path.lastPathComponent } }
-            ?? AnySequence([])
-            */
+    public func list() throws -> AnySequence<String> {
+        let result = try FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: nil
+        )
+        .map { $0.lastPathComponent }
+        return AnySequence(result)
     }
 }
