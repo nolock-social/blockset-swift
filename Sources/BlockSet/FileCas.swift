@@ -17,8 +17,12 @@ public struct FileCas: Cas {
         self.dir = dir
     }
 
+    public func id(_ data: Data) -> String {
+        sha256Id(data)
+    }
+
     public mutating func add(_ data: Data) throws -> String {
-        let id = SHA256.hash(data: data).base32()
+        let id = id(data)
         try data.write(to: path(id))
         return id
     }

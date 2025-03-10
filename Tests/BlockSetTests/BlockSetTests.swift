@@ -17,7 +17,9 @@ import Testing
 @Test func memCas() async throws {
     var memCas: Cas = MemCas()
     let data = Data([0, 1, 2, 3])
+    let hash = memCas.id(data)
     let id = try memCas.add(data)
+    #expect(id == hash)
     #expect(try memCas.get(id) == data)
     #expect(try memCas.get("nonexistent") == nil)
     #expect(try memCas.list().contains(id))
