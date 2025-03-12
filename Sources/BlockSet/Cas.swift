@@ -1,10 +1,17 @@
 import Foundation
 import Crypto
 
-public protocol Cas {
+public protocol Cas: AnyObject {
+    /// Returns identifier (hash) for the given data block.
     func id(_ data: Data) -> String
-    mutating func add(_ data: Data) throws -> String
+
+    /// Add the given data block to the CAS and returns the data identifier.
+    @discardableResult
+    func add(_ data: Data) throws -> String
+
     func get(_ id: String) throws -> Data?
+
+    /// Returns a list of all identifiers.
     func list() throws -> AnySequence<String>
 }
 

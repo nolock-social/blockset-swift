@@ -3,7 +3,7 @@ import Testing
 import BlockSet
 
 @Test func publicMemCas() async throws {
-    var memCas: Cas = MemCas()
+    let memCas: Cas = MemCas()
     let data = Data([0, 1, 2, 3])
     let id = try memCas.add(data)
     #expect(try memCas.get(id) == data)
@@ -14,7 +14,7 @@ import BlockSet
     let dir = ".test"
     try? FileManager.default.removeItem(atPath: dir)
     try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
-    var fileCas: Cas = FileCas(URL(filePath: dir))
+    let fileCas: Cas = FileCas(URL(filePath: dir))
     let data = Data([0, 1, 2, 3, 4])
     let id = try fileCas.add(data)
     #expect(try fileCas.get(id) == data)
@@ -27,7 +27,7 @@ import BlockSet
     //try? FileManager.default.removeItem(atPath: dir)
     //try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     //var cas: Cas = FileCas(URL(filePath: dir))
-    var cas: Cas = MemCas()
+    let cas: Cas = MemCas()
     //
     class X: Codable {
         var a: String

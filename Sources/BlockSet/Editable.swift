@@ -24,7 +24,7 @@ extension Encodable where Self: Codable {
 }
 
 extension Cas {
-    public mutating func save<T: Codable>(_ e: inout Editable<T>) throws -> String {
+    public func save<T: Codable>(_ e: inout Editable<T>) throws -> String {
         let revision = Revision(previous: e.previous, value: e.value)
         let data = try JSONEncoder().encode(revision)
         let id = try self.add(data)

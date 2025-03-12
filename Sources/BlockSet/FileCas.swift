@@ -1,7 +1,7 @@
 import Crypto
 import Foundation
 
-public struct FileCas: Cas {
+public class FileCas: Cas {
 
     // private:
 
@@ -21,7 +21,7 @@ public struct FileCas: Cas {
         sha256Id(data)
     }
 
-    public mutating func add(_ data: Data) throws -> String {
+    public func add(_ data: Data) throws -> String {
         let id = id(data)
         try data.write(to: path(id))
         return id
