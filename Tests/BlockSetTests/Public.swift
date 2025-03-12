@@ -21,3 +21,48 @@ import BlockSet
     #expect(try fileCas.get("nonexistent") == nil)
     #expect(try fileCas.list().contains(id))
 }
+
+@Test func editable() async throws {
+    //let dir = ".test"
+    //try? FileManager.default.removeItem(atPath: dir)
+    //try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    //var cas: Cas = FileCas(URL(filePath: dir))
+    var cas: Cas = MemCas()
+    //
+    class X: Codable {
+        var a: String
+        var b: String
+        init(a: String, b: String) {
+            self.a = a
+            self.b = b
+        }
+    }
+    var e = X(a: "Hello", b: "world!").editable()
+    let idInit = try cas.save(&e)
+    e.value?.a = "Goodbye"
+    let idEdit = try cas.save(&e)
+    e.value = nil
+    let idDelete = try cas.save(&e);
+    e.value = X(a: "A", b: "B")
+    let idRestore = try cas.save(&e)
+    //
+    e = try cas.load(idInit)!
+    #expect(e.previous == [])
+    #expect(e.value?.a == "Hello")
+    //
+    e = try cas.load(idEdit)!
+    #expect(e.previous == [idInit])
+    #expect(e.value?.a == "Goodbye")
+    //
+    e = try cas.load(idDelete)!
+    #expect(e.previous == [idEdit])
+    #expect(e.value == nil)
+    //
+    e = try cas.load(idRestore)!
+    #expect(e.previous == [idDelete])
+    #expect(e.value?.a == "A")
+    // check JSON payload
+    let d = try cas.get(idDelete)!
+    let s = String(data: d, encoding: .utf8)!
+    #expect(s == "{\"previous\":[\"\(idEdit)\"]}")
+}

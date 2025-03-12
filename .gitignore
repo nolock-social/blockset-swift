@@ -66,3 +66,4 @@ fastlane/test_output
 
 #Ds_Store
 .Ds_Store
+.coverage
