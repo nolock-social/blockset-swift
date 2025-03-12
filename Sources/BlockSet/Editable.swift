@@ -1,11 +1,19 @@
 import Foundation
 
-struct Revision<T: Codable>: Codable {
+struct Revision<T: Codable & Hashable>: Codable & Hashable & Equatable {
     var previous: [String]
     var value: T?
 }
 
-public class Editable<T: Codable> {
+public class Editable<T: Codable & Hashable>: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        revision.hash(into: &hasher)
+    }
+
+    public static func == (lhs: Editable, rhs: Editable) -> Bool {
+        lhs.revision == rhs.revision
+    }
+
     // private:
     var revision: Revision<T>
     // internal:
@@ -18,9 +26,10 @@ public class Editable<T: Codable> {
         set { revision.value = newValue }
     }
     public var previous: [String] { revision.previous }
+
 }
 
-extension Encodable where Self: Codable {
+extension Encodable where Self: Codable & Hashable {
     public func editable() -> Editable<Self> {
         Editable(value: self, previous: [])
     }
