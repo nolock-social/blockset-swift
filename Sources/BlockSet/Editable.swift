@@ -46,14 +46,18 @@ extension Cas {
     }
 
     public func loadAll<T: Codable>() throws -> Array<Editable<T>> {
+        var old: Set<String> = []
         var map: [String: Editable<T>] = [:]
         for id in try self.list() {
             guard let editable: Editable<T> = try self.load(id) else { continue }
             // remove previous
             for p in editable.previous {
                 map[p] = nil
+                old.insert(p)
             }
-            map[id] = editable
+            if !old.contains(id) {
+                map[id] = editable
+            }
         }
         return Array(map.values)
     }
