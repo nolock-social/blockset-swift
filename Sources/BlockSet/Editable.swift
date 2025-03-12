@@ -35,10 +35,10 @@ extension Cas {
     }
 
     public func load<T: Codable>(_ id: String) throws -> Editable<T>? {
-        let data = try self.get(id)
-        guard let data else {
+        guard let data = try self.get(id) else {
             return nil
         }
+        // make sure that the block can be converted into `Revision<T>`.
         guard let revision = try? JSONDecoder().decode(Revision<T>.self, from: data) else {
             return nil
         }
