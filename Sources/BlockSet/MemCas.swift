@@ -1,7 +1,7 @@
 import Foundation
 import Crypto
 
-public struct MemCas: Cas {
+public class MemCas: Cas {
     private var blocks: [String: Data] = [:]
 
     public init() {}
@@ -10,7 +10,7 @@ public struct MemCas: Cas {
         sha256Id(data)
     }
 
-    public mutating func add(_ data: Data) -> String {
+    public func add(_ data: Data) -> String {
         let id = id(data)
         blocks[id] = data
         return id

@@ -24,19 +24,41 @@ extension Encodable where Self: Codable {
 }
 
 extension Cas {
-    public mutating func save<T: Codable>(_ e: inout Editable<T>) throws -> String {
+
+    @discardableResult
+    public func save<T: Codable>(_ e: Editable<T>) throws -> String {
         let revision = Revision(previous: e.previous, value: e.value)
         let data = try JSONEncoder().encode(revision)
         let id = try self.add(data)
         e.previous = [id]
         return id
     }
+
     public func load<T: Codable>(_ id: String) throws -> Editable<T>? {
-        let data = try self.get(id)
-        guard let data else {
+        guard let data = try self.get(id) else {
             return nil
         }
-        let revision = try JSONDecoder().decode(Revision<T>.self, from: data)
+        // make sure that the block can be converted into `Revision<T>`.
+        guard let revision = try? JSONDecoder().decode(Revision<T>.self, from: data) else {
+            return nil
+        }
         return Editable(value: revision.value, previous: revision.previous)
+    }
+
+    public func loadAll<T: Codable>() throws -> Array<Editable<T>> {
+        var outdated: Set<String> = []
+        var result: [String: Editable<T>] = [:]
+        for id in try self.list() {
+            guard let editable: Editable<T> = try self.load(id) else { continue }
+            // remove and tag previous revisions
+            for p in editable.previous {
+                result[p] = nil
+                outdated.insert(p)
+            }
+            if !outdated.contains(id) {
+                result[id] = editable
+            }
+        }
+        return Array(result.values)
     }
 }

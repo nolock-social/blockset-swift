@@ -3,7 +3,7 @@ import Testing
 import BlockSet
 
 @Test func publicMemCas() async throws {
-    var memCas: Cas = MemCas()
+    let memCas: Cas = MemCas()
     let data = Data([0, 1, 2, 3])
     let id = try memCas.add(data)
     #expect(try memCas.get(id) == data)
@@ -11,10 +11,10 @@ import BlockSet
 }
 
 @Test func publicFileCas() async throws {
-    let dir = ".test"
+    let dir = ".test/pfc"
     try? FileManager.default.removeItem(atPath: dir)
     try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
-    var fileCas: Cas = FileCas(URL(filePath: dir))
+    let fileCas: Cas = FileCas(URL(filePath: dir))
     let data = Data([0, 1, 2, 3, 4])
     let id = try fileCas.add(data)
     #expect(try fileCas.get(id) == data)
@@ -22,13 +22,7 @@ import BlockSet
     #expect(try fileCas.list().contains(id))
 }
 
-@Test func editable() async throws {
-    //let dir = ".test"
-    //try? FileManager.default.removeItem(atPath: dir)
-    //try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
-    //var cas: Cas = FileCas(URL(filePath: dir))
-    var cas: Cas = MemCas()
-    //
+func editable(_ cas: Cas) throws {
     class X: Codable {
         var a: String
         var b: String
@@ -38,13 +32,13 @@ import BlockSet
         }
     }
     var e = X(a: "Hello", b: "world!").editable()
-    let idInit = try cas.save(&e)
+    let idInit = try cas.save(e)
     e.value?.a = "Goodbye"
-    let idEdit = try cas.save(&e)
+    let idEdit = try cas.save(e)
     e.value = nil
-    let idDelete = try cas.save(&e);
+    let idDelete = try cas.save(e);
     e.value = X(a: "A", b: "B")
-    let idRestore = try cas.save(&e)
+    let idRestore = try cas.save(e)
     //
     e = try cas.load(idInit)!
     #expect(e.previous == [])
@@ -65,4 +59,42 @@ import BlockSet
     let d = try cas.get(idDelete)!
     let s = String(data: d, encoding: .utf8)!
     #expect(s == "{\"previous\":[\"\(idEdit)\"]}")
+
+    // Add string based.
+    do {
+        let e = "Hello world!".editable()
+        try cas.save(e)
+        e.value = "Goodbye world!"
+        try cas.save(e)
+    }
+
+    // Add string based.
+    do {
+        let e = "Hello worldX!".editable()
+        try cas.save(e)
+    }
+
+    // load X items
+    do {
+        let list: Array<Editable<X>> = try cas.loadAll()
+        #expect(list.count == 1)
+    }
+
+    // load String items
+    do {
+        let list: Array<Editable<String>> = try cas.loadAll().filter { $0.value != nil }
+        #expect(list.count == 2)
+    }
+}
+
+@Test func memEditable() throws {
+    try editable(MemCas())
+}
+
+@Test func fileEditable() throws {
+    let dir = ".test/fe/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    let cas: Cas = FileCas(URL(filePath: dir))
+    try editable(cas)
 }
