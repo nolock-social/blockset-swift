@@ -39,4 +39,16 @@ extension Cas {
         let revision = try JSONDecoder().decode(Revision<T>.self, from: data)
         return Editable(value: revision.value, previous: revision.previous)
     }
+    public func loadAll<T: Codable>() throws -> AnySequence<Editable<T>> {
+        var map: [String: Editable<T>] = [:]
+        for id in try self.list() {
+            guard let editable: Editable<T> = try self.load(id) else { continue }
+            // remove previous
+            for p in editable.previous {
+                map[p] = nil
+            }
+            map[id] = editable
+        }
+        return AnySequence(map.values)
+    }
 }
