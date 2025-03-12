@@ -24,22 +24,28 @@ extension Encodable where Self: Codable {
 }
 
 extension Cas {
-    public func save<T: Codable>(_ e: inout Editable<T>) throws -> String {
+
+    @discardableResult
+    public func save<T: Codable>(_ e: Editable<T>) throws -> String {
         let revision = Revision(previous: e.previous, value: e.value)
         let data = try JSONEncoder().encode(revision)
         let id = try self.add(data)
         e.previous = [id]
         return id
     }
+
     public func load<T: Codable>(_ id: String) throws -> Editable<T>? {
         let data = try self.get(id)
         guard let data else {
             return nil
         }
-        let revision = try JSONDecoder().decode(Revision<T>.self, from: data)
+        guard let revision = try? JSONDecoder().decode(Revision<T>.self, from: data) else {
+            return nil
+        }
         return Editable(value: revision.value, previous: revision.previous)
     }
-    public func loadAll<T: Codable>() throws -> AnySequence<Editable<T>> {
+
+    public func loadAll<T: Codable>() throws -> Array<Editable<T>> {
         var map: [String: Editable<T>] = [:]
         for id in try self.list() {
             guard let editable: Editable<T> = try self.load(id) else { continue }
@@ -49,6 +55,6 @@ extension Cas {
             }
             map[id] = editable
         }
-        return AnySequence(map.values)
+        return Array(map.values)
     }
 }
