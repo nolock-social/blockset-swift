@@ -21,3 +21,40 @@ import BlockSet
     #expect(try fileCas.get("nonexistent") == nil)
     #expect(try fileCas.list().contains(id))
 }
+
+@Test func editable() async throws {
+    var cas: Cas = MemCas()
+    //
+    class X: Codable {
+        var a: String
+        var b: String
+        init(a: String, b: String) {
+            self.a = a
+            self.b = b
+        }
+    }
+    var e = X(a: "Hello", b: "world!").editable()
+    let idInit = try cas.save(&e)
+    e.model?.a = "Goodbye"
+    let idEdit = try cas.save(&e)
+    e.model = nil
+    let idDelete = try cas.save(&e);
+    e.model = X(a: "A", b: "B")
+    let idRestore = try cas.save(&e)
+    //
+    e = try cas.load(idInit)!
+    #expect(e.previous == [])
+    #expect(e.model?.a == "Hello")
+    //
+    e = try cas.load(idEdit)!
+    #expect(e.previous == [idInit])
+    #expect(e.model?.a == "Goodbye")
+    //
+    e = try cas.load(idDelete)!
+    #expect(e.previous == [idEdit])
+    #expect(e.model == nil)
+    //
+    e = try cas.load(idRestore)!
+    #expect(e.previous == [idDelete])
+    #expect(e.model?.a == "A")
+}
