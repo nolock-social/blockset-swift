@@ -1,23 +1,35 @@
 import Foundation
 
-struct Revision<T: Codable>: Codable {
+struct Revision<T: Codable & Hashable>: Codable & Hashable & Equatable {
     var previous: [String]
     var value: T?
 }
 
-public class Editable<T: Codable> {
+public class Editable<T: Codable & Hashable>: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        revision.hash(into: &hasher)
+    }
+
+    public static func == (lhs: Editable, rhs: Editable) -> Bool {
+        lhs.revision == rhs.revision
+    }
+
     // private:
+    var revision: Revision<T>
     // internal:
     init(value: T?, previous: [String]) {
-        self.value = value
-        self.previous = previous
+        self.revision = Revision(previous: previous, value: value)
     }
     // public:
-    public internal(set) var previous: [String]
-    public var value: T?
+    public var value: T? {
+        get { revision.value }
+        set { revision.value = newValue }
+    }
+    public var previous: [String] { revision.previous }
+
 }
 
-extension Encodable where Self: Codable {
+extension Encodable where Self: Codable & Hashable {
     public func editable() -> Editable<Self> {
         Editable(value: self, previous: [])
     }
@@ -27,10 +39,9 @@ extension Cas {
 
     @discardableResult
     public func save<T: Codable>(_ e: Editable<T>) throws -> String {
-        let revision = Revision(previous: e.previous, value: e.value)
-        let data = try JSONEncoder().encode(revision)
+        let data = try JSONEncoder().encode(e.revision)
         let id = try self.add(data)
-        e.previous = [id]
+        e.revision.previous = [id]
         return id
     }
 
@@ -45,13 +56,13 @@ extension Cas {
         return Editable(value: revision.value, previous: revision.previous)
     }
 
-    public func loadAll<T: Codable>() throws -> Array<Editable<T>> {
+    public func loadAll<T: Codable>() throws -> [Editable<T>] {
         var outdated: Set<String> = []
         var result: [String: Editable<T>] = [:]
         for id in try self.list() {
             guard let editable: Editable<T> = try self.load(id) else { continue }
             // remove and tag previous revisions
-            for p in editable.previous {
+            for p in editable.revision.previous {
                 result[p] = nil
                 outdated.insert(p)
             }

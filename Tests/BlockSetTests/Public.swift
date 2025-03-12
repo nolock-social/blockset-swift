@@ -23,7 +23,7 @@ import BlockSet
 }
 
 func editable(_ cas: Cas) throws {
-    class X: Codable {
+    struct X: Codable & Hashable {
         var a: String
         var b: String
         init(a: String, b: String) {
