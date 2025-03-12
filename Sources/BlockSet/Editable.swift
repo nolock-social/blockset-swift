@@ -2,30 +2,30 @@ import Foundation
 
 struct Revision<T: Codable>: Codable {
     var previous: [String]
-    var current: T?
+    var value: T?
 }
 
 public class Editable<T: Codable> {
     // private:
     // internal:
-    init(model: T?, previous: [String]) {
-        self.model = model
+    init(value: T?, previous: [String]) {
+        self.value = value
         self.previous = previous
     }
     // public:
     public internal(set) var previous: [String]
-    public var model: T?
+    public var value: T?
 }
 
 extension Encodable where Self: Codable {
     public func editable() -> Editable<Self> {
-        Editable(model: self, previous: [])
+        Editable(value: self, previous: [])
     }
 }
 
 extension Cas {
     public mutating func save<T: Codable>(_ e: inout Editable<T>) throws -> String {
-        let revision = Revision(previous: e.previous, current: e.model)
+        let revision = Revision(previous: e.previous, value: e.value)
         let data = try JSONEncoder().encode(revision)
         let id = try self.add(data)
         e.previous = [id]
@@ -37,6 +37,6 @@ extension Cas {
             return nil
         }
         let revision = try JSONDecoder().decode(Revision<T>.self, from: data)
-        return Editable(model: revision.current, previous: revision.previous)
+        return Editable(value: revision.value, previous: revision.previous)
     }
 }
