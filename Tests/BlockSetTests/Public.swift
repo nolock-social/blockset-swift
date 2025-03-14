@@ -118,7 +118,7 @@ func model(_ cas: Cas) throws {
 
     // Add string based.
     do {
-        let m = Model.initial("Hello worldX!")
+        let m = Model.initial("Hello world!!!")
         try cas.saveJsonModel(m)
     }
 
