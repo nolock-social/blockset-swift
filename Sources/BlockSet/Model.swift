@@ -1,30 +1,43 @@
-public class Model<T> {
-    // internal:
+struct ModelStruct<T: Hashable>: Hashable {
     var mutable: Mutable
-    init(value: T, mutable: Mutable) {
-        self.value = value
-        self.mutable = mutable
+    var value: T
+}
+
+public class Model<T: Hashable>: Hashable {
+    // internal:
+    var s: ModelStruct<T>
+    init(_ s: ModelStruct<T>) {
+        self.s = s
     }
     // public:
-    public var value: T
     public static func initial(_ value: T) -> Model {
-        Model(value: value, mutable: Mutable.initial())
+        Model(ModelStruct(mutable: Mutable.initial(), value: value))
+    }
+    public func hash(into hasher: inout Hasher) {
+        self.s.hash(into: &hasher)
+    }
+    public static func == (lhs: Model, rhs: Model) -> Bool {
+        lhs.s == rhs.s
+    }
+    public var value: T {
+        get { s.value }
+        set { s.value = newValue }
     }
 }
 
 extension Cas {
     @discardableResult
     public func saveJsonModel<T: Encodable>(_ model: Model<T>) throws -> String? {
-        try saveJson(model.mutable, model.value)
+        try saveJson(model.s.mutable, model.s.value)
     }
     public func loadJsonModel<T: Decodable>(_ mutable: Mutable) throws -> Model<T>? {
         guard let value: T = try loadJson(mutable) else {
             return nil
         }
-        return Model(value: value, mutable: mutable)
+        return Model(ModelStruct(mutable: mutable, value: value))
     }
     @discardableResult
     public func deleteModel<T>(_ model: Model<T>) throws -> String? {
-        try delete(model.mutable)
+        try delete(model.s.mutable)
     }
 }

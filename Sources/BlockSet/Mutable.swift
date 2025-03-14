@@ -5,12 +5,12 @@ struct Commit: Codable {
     var blob: String?
 }
 
-struct Parent {
+struct Parent: Hashable {
     var commitId: String
     var blobId: String?
 }
 
-public class Mutable {
+public class Mutable: Hashable {
     var parent: Parent?
     // internal:
     init(_ parent: Parent?) {
@@ -19,6 +19,12 @@ public class Mutable {
     // public:
     public static func initial() -> Mutable {
         Mutable(nil)
+    }
+    public func hash(into hasher: inout Hasher) {
+        self.parent.hash(into: &hasher)
+    }
+    public static func == (lhs: Mutable, rhs: Mutable) -> Bool {
+        lhs.parent == rhs.parent
     }
 }
 
