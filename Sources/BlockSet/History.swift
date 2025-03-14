@@ -31,7 +31,7 @@ public class History<T: Codable & Hashable>: Hashable {
 }
 
 extension Encodable where Self: Codable & Hashable {
-    public func revision0() -> History<Self> {
+    public func newHistory() -> History<Self> {
         History(value: self, previous: [])
     }
 }
