@@ -7,19 +7,24 @@ public class Model<T> {
     }
     // public:
     public var value: T
-    public static func initial(value: T) -> Model {
+    public static func initial(_ value: T) -> Model {
         Model(value: value, mutable: Mutable.initial())
     }
 }
 
 extension Cas {
-    func saveJsonModel<T: Encodable>(model: Model<T>) throws -> String? {
+    @discardableResult
+    public func saveJsonModel<T: Encodable>(_ model: Model<T>) throws -> String? {
         try saveJson(model.mutable, model.value)
     }
-    func loadJsonModel<T: Decodable>(mutable: Mutable) throws -> Model<T>? {
+    public func loadJsonModel<T: Decodable>(_ mutable: Mutable) throws -> Model<T>? {
         guard let value: T = try loadJson(mutable) else {
             return nil
         }
         return Model(value: value, mutable: mutable)
+    }
+    @discardableResult
+    public func deleteModel<T>(_ model: Model<T>) throws -> String? {
+        try delete(model.mutable)
     }
 }

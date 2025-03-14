@@ -79,7 +79,67 @@ func mutable(_ cas: Cas) throws {
 }
 
 @Test func fileMutable() throws {
-    let dir = ".test/fe/"
+    let dir = ".test/mutable/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    let cas: Cas = FileCas(URL(filePath: dir))
+    try mutable(cas)
+}
+
+func model(_ cas: Cas) throws {
+    struct X: Codable & Hashable {
+        var a: String
+        var b: String
+        init(a: String, b: String) {
+            self.a = a
+            self.b = b
+        }
+    }
+    let m = Model.initial(X(a: "Hello", b: "world!"))
+    try cas.saveJsonModel(m)
+    m.value.a = "Goodbye"
+    let idEdit = try cas.saveJsonModel(m)
+    let idDelete = try cas.deleteModel(m)
+    m.value = X(a: "A", b: "B")
+    try cas.saveJsonModel(m)
+
+    // check JSON payload
+    let d = try cas.get(idDelete!)!
+    let s = String(data: d, encoding: .utf8)!
+    #expect(s == "{\"parent\":[\"\(idEdit!)\"]}")
+
+    // Add string based.
+    do {
+        let m = Model.initial("Hello world!")
+        try cas.saveJsonModel(m)
+        m.value = "Goodbye world!"
+        try cas.saveJsonModel(m)
+    }
+
+    // Add string based.
+    do {
+        let m = Model.initial("Hello worldX!")
+        try cas.saveJsonModel(m)
+    }
+
+    // list all items
+    do {
+        let list: Array<Mutable> = try cas.listMutable()
+        #expect(list.count == 3)
+        let ls = list.filter {
+            let x: String? = try? cas.loadJson($0)
+            return x != nil
+        }
+        #expect(ls.count == 2)
+    }
+}
+
+@Test func memModel() throws {
+    try mutable(MemCas())
+}
+
+@Test func fileModel() throws {
+    let dir = ".test/model/"
     try? FileManager.default.removeItem(atPath: dir)
     try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     let cas: Cas = FileCas(URL(filePath: dir))
