@@ -21,7 +21,6 @@ public class Mutable: Hashable {
         Mutable(nil)
     }
     // Hashable:
-
     public static func == (lhs: Mutable, rhs: Mutable) -> Bool {
         return lhs === rhs
     }
