@@ -5,7 +5,7 @@ struct Commit: Codable {
     var blob: String?
 }
 
-struct Parent: Hashable {
+struct Parent {
     var commitId: String
     var blobId: String?
 }
@@ -20,11 +20,13 @@ public class Mutable: Hashable {
     public static func initial() -> Mutable {
         Mutable(nil)
     }
-    public func hash(into hasher: inout Hasher) {
-        self.parent.hash(into: &hasher)
-    }
+    // Hashable:
+
     public static func == (lhs: Mutable, rhs: Mutable) -> Bool {
-        lhs.parent == rhs.parent
+        return lhs === rhs
+    }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
     }
 }
 

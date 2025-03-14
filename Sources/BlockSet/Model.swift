@@ -1,9 +1,9 @@
-struct ModelStruct<T: Hashable>: Hashable {
+struct ModelStruct<T> {
     var mutable: Mutable
     var value: T
 }
 
-public class Model<T: Hashable>: Hashable {
+public class Model<T>: Hashable {
     // internal:
     var s: ModelStruct<T>
     init(_ s: ModelStruct<T>) {
@@ -13,15 +13,18 @@ public class Model<T: Hashable>: Hashable {
     public static func initial(_ value: T) -> Model {
         Model(ModelStruct(mutable: Mutable.initial(), value: value))
     }
-    public func hash(into hasher: inout Hasher) {
-        self.s.hash(into: &hasher)
-    }
-    public static func == (lhs: Model, rhs: Model) -> Bool {
-        lhs.s == rhs.s
-    }
     public var value: T {
         get { s.value }
         set { s.value = newValue }
+    }
+
+    // Hashable:
+
+    public static func == (lhs: Model, rhs: Model) -> Bool {
+        return lhs === rhs
+    }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
     }
 }
 
