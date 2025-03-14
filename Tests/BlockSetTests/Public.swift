@@ -22,7 +22,7 @@ import BlockSet
     #expect(try fileCas.list().contains(id))
 }
 
-func editable(_ cas: Cas) throws {
+func mutable(_ cas: Cas) throws {
     struct X: Codable & Hashable {
         var a: String
         var b: String
@@ -31,70 +31,57 @@ func editable(_ cas: Cas) throws {
             self.b = b
         }
     }
-    var e = X(a: "Hello", b: "world!").newHistory()
-    let idInit = try cas.save(e)
-    e.value?.a = "Goodbye"
-    let idEdit = try cas.save(e)
-    e.value = nil
-    let idDelete = try cas.save(e);
-    e.value = X(a: "A", b: "B")
-    let idRestore = try cas.save(e)
-    //
-    e = try cas.load(idInit)!
-    #expect(e.previous == [])
-    #expect(e.value?.a == "Hello")
-    //
-    e = try cas.load(idEdit)!
-    #expect(e.previous == [idInit])
-    #expect(e.value?.a == "Goodbye")
-    //
-    e = try cas.load(idDelete)!
-    #expect(e.previous == [idEdit])
-    #expect(e.value == nil)
-    //
-    e = try cas.load(idRestore)!
-    #expect(e.previous == [idDelete])
-    #expect(e.value?.a == "A")
+    let m = Mutable.initial()
+    var e: X? = X(a: "Hello", b: "world!")
+    let _ = try cas.saveJson(m, e)
+    e!.a = "Goodbye"
+    let idEdit = try cas.saveJson(m, e)
+    e = nil
+    let idDelete = try cas.saveJson(m, e);
+    e = X(a: "A", b: "B")
+    let _ = try cas.saveJson(m, e)
+
     // check JSON payload
-    let d = try cas.get(idDelete)!
+    let d = try cas.get(idDelete!)!
     let s = String(data: d, encoding: .utf8)!
-    #expect(s == "{\"previous\":[\"\(idEdit)\"]}")
+    #expect(s == "{\"parent\":[\"\(idEdit!)\"]}")
 
     // Add string based.
     do {
-        let e = "Hello world!".newHistory()
-        try cas.save(e)
-        e.value = "Goodbye world!"
-        try cas.save(e)
+        let m: Mutable = Mutable.initial()
+        var e = "Hello world!"
+        try cas.saveJson(m, e)
+        e = "Goodbye world!"
+        try cas.saveJson(m, e)
     }
 
     // Add string based.
     do {
-        let e = "Hello worldX!".newHistory()
-        try cas.save(e)
+        let m = Mutable.initial()
+        let e = "Hello worldX!"
+        try cas.saveJson(m, e)
     }
 
-    // load X items
+    // list all items
     do {
-        let list: Array<History<X>> = try cas.loadAll()
-        #expect(list.count == 1)
-    }
-
-    // load String items
-    do {
-        let list: Array<History<String>> = try cas.loadAll().filter { $0.value != nil }
-        #expect(list.count == 2)
+        let list: Array<Mutable> = try cas.listMutable()
+        #expect(list.count == 3)
+        let ls = list.filter {
+            let x: String? = try? cas.loadJson($0)
+            return x != nil
+        }
+        #expect(ls.count == 2)
     }
 }
 
-@Test func memEditable() throws {
-    try editable(MemCas())
+@Test func memMutable() throws {
+    try mutable(MemCas())
 }
 
-@Test func fileEditable() throws {
+@Test func fileMutable() throws {
     let dir = ".test/fe/"
     try? FileManager.default.removeItem(atPath: dir)
     try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     let cas: Cas = FileCas(URL(filePath: dir))
-    try editable(cas)
+    try mutable(cas)
 }
