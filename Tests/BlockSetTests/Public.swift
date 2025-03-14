@@ -31,7 +31,7 @@ func editable(_ cas: Cas) throws {
             self.b = b
         }
     }
-    var e = X(a: "Hello", b: "world!").editable()
+    var e = X(a: "Hello", b: "world!").revision0()
     let idInit = try cas.save(e)
     e.value?.a = "Goodbye"
     let idEdit = try cas.save(e)
@@ -62,7 +62,7 @@ func editable(_ cas: Cas) throws {
 
     // Add string based.
     do {
-        let e = "Hello world!".editable()
+        let e = "Hello world!".revision0()
         try cas.save(e)
         e.value = "Goodbye world!"
         try cas.save(e)
@@ -70,7 +70,7 @@ func editable(_ cas: Cas) throws {
 
     // Add string based.
     do {
-        let e = "Hello worldX!".editable()
+        let e = "Hello worldX!".revision0()
         try cas.save(e)
     }
 

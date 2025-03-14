@@ -9,17 +9,18 @@ public class Editable<T: Codable & Hashable>: Hashable {
     public func hash(into hasher: inout Hasher) {
         revision.hash(into: &hasher)
     }
-
     public static func == (lhs: Editable, rhs: Editable) -> Bool {
         lhs.revision == rhs.revision
     }
 
     // private:
     var revision: Revision<T>
+
     // internal:
     init(value: T?, previous: [String]) {
         self.revision = Revision(previous: previous, value: value)
     }
+
     // public:
     public var value: T? {
         get { revision.value }
@@ -30,7 +31,7 @@ public class Editable<T: Codable & Hashable>: Hashable {
 }
 
 extension Encodable where Self: Codable & Hashable {
-    public func editable() -> Editable<Self> {
+    public func revision0() -> Editable<Self> {
         Editable(value: self, previous: [])
     }
 }
