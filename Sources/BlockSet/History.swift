@@ -5,11 +5,11 @@ struct Revision<T: Codable & Hashable>: Codable & Hashable & Equatable {
     var value: T?
 }
 
-public class Editable<T: Codable & Hashable>: Hashable {
+public class History<T: Codable & Hashable>: Hashable {
     public func hash(into hasher: inout Hasher) {
         revision.hash(into: &hasher)
     }
-    public static func == (lhs: Editable, rhs: Editable) -> Bool {
+    public static func == (lhs: History, rhs: History) -> Bool {
         lhs.revision == rhs.revision
     }
 
@@ -31,22 +31,22 @@ public class Editable<T: Codable & Hashable>: Hashable {
 }
 
 extension Encodable where Self: Codable & Hashable {
-    public func revision0() -> Editable<Self> {
-        Editable(value: self, previous: [])
+    public func revision0() -> History<Self> {
+        History(value: self, previous: [])
     }
 }
 
 extension Cas {
 
     @discardableResult
-    public func save<T: Codable>(_ e: Editable<T>) throws -> String {
+    public func save<T: Codable>(_ e: History<T>) throws -> String {
         let data = try JSONEncoder().encode(e.revision)
         let id = try self.add(data)
         e.revision.previous = [id]
         return id
     }
 
-    public func load<T: Codable>(_ id: String) throws -> Editable<T>? {
+    public func load<T: Codable>(_ id: String) throws -> History<T>? {
         guard let data = try self.get(id) else {
             return nil
         }
@@ -54,14 +54,14 @@ extension Cas {
         guard let revision = try? JSONDecoder().decode(Revision<T>.self, from: data) else {
             return nil
         }
-        return Editable(value: revision.value, previous: revision.previous)
+        return History(value: revision.value, previous: revision.previous)
     }
 
-    public func loadAll<T: Codable>() throws -> [Editable<T>] {
+    public func loadAll<T: Codable>() throws -> [History<T>] {
         var outdated: Set<String> = []
-        var result: [String: Editable<T>] = [:]
+        var result: [String: History<T>] = [:]
         for id in try self.list() {
-            guard let editable: Editable<T> = try self.load(id) else { continue }
+            guard let editable: History<T> = try self.load(id) else { continue }
             // remove and tag previous revisions
             for p in editable.revision.previous {
                 result[p] = nil

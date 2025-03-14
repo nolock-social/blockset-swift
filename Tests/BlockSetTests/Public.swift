@@ -76,13 +76,13 @@ func editable(_ cas: Cas) throws {
 
     // load X items
     do {
-        let list: Array<Editable<X>> = try cas.loadAll()
+        let list: Array<History<X>> = try cas.loadAll()
         #expect(list.count == 1)
     }
 
     // load String items
     do {
-        let list: Array<Editable<String>> = try cas.loadAll().filter { $0.value != nil }
+        let list: Array<History<String>> = try cas.loadAll().filter { $0.value != nil }
         #expect(list.count == 2)
     }
 }
