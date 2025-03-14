@@ -7,11 +7,8 @@ public class Model<T> {
     }
     // public:
     public var value: T
-}
-
-extension Encodable where Self: Codable {
-    public func initialJsonModel() -> Model<Self> {
-        Model(value: self, mutable: Mutable.initial())
+    public static func initial(value: T) -> Model {
+        Model(value: value, mutable: Mutable.initial())
     }
 }
 
