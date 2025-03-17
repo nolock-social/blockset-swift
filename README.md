@@ -2,7 +2,7 @@
 
 ## Commit Format
 
-TypeSceript:
+TypeScript:
 
 ```ts
 type Commit = {
