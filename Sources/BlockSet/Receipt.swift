@@ -1,21 +1,21 @@
 public struct Location: Codable, Hashable {
-    var latitude: Double
-    var longitude: Double
+    public var latitude: Double
+    public var longitude: Double
 }
 
 public struct Image: Codable, Hashable {
-    var image: String
-    var date: Double
-    var location: Location
+    public var image: String
+    public var date: Double
+    public var location: Location
 }
 
 public struct Receipt: Codable, Hashable {
-    var image: Image
-    var price: String
-    var title: String
-    var description: String
-    var imageList: [String]?
+    public var image: Image
+    public var price: String
+    public var title: String
+    public var description: String
+    public var imageList: [String]?
 
-    var date: Double
-    var location: Location
+    public var date: Double
+    public var location: Location
 }
