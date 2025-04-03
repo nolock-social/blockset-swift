@@ -157,8 +157,13 @@ func model(_ cas: Cas) throws {
     let cas2: Cas = FileCas(URL(filePath: dir2))
     let data = Data([0, 1, 2, 3])
     let id = try cas1.add(data)
+    let data2 = Data([0, 1, 2, 3, 4])
+    let id2 = try cas2.add(data2)
     #expect(try cas1.get(id) == data)
     #expect(try cas2.get(id) == nil)
+    #expect(try cas1.get(id2) == nil)
+    #expect(try cas2.get(id2) == data2)
     try cas1.sync(cas2)
     #expect(try cas2.get(id) == data)
+    #expect(try cas1.get(id2) == data2)
 }

@@ -15,11 +15,13 @@ public protocol Cas: AnyObject {
     func list() throws -> AnySequence<String>
 }
 
-func sha256Id(_ data: Data) -> String {
-    SHA256.hash(data: data).base32()
+extension Data {
+    func sha256Id() -> String {
+        SHA256.hash(data: self).base32()
+    }
 }
 
-struct CasWithSet {
+private struct CasWithSet {
     let cas: Cas
     let set: Set<String>
     func fetchFrom(_ b: CasWithSet) throws {
@@ -34,7 +36,7 @@ struct CasWithSet {
 }
 
 extension Cas {
-    func withSet() throws -> CasWithSet {
+    private func withSet() throws -> CasWithSet {
         CasWithSet(cas: self, set: Set(try list()))
     }
     public func sync(_ cas: Cas) throws {
