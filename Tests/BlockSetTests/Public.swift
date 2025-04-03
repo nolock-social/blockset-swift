@@ -167,3 +167,20 @@ func model(_ cas: Cas) throws {
     #expect(try cas2.get(id) == data)
     #expect(try cas1.get(id2) == data2)
 }
+
+@Test func multiCas() throws {
+    let dir = ".test/multi/"
+    try? FileManager.default.removeItem(atPath: dir)
+    let dirLocal = dir + "/local"
+    let dirRemote = dir + "/remote"
+    try! FileManager.default.createDirectory(atPath: dirLocal, withIntermediateDirectories: true)
+    try! FileManager.default.createDirectory(atPath: dirRemote, withIntermediateDirectories: true)
+    let casLocal: Cas = FileCas(URL(filePath: dirLocal))
+    let casRemote: Cas = FileCas(URL(filePath: dirRemote))
+    let cas: Cas = MultiCas(local: casLocal, remote: casRemote)
+    let data = Data([0, 1, 2, 3])
+    let id = try cas.add(data)
+    #expect(try cas.get(id) == data)
+    #expect(try casLocal.get(id) == data)
+    #expect(try casRemote.get(id) == data)
+}
