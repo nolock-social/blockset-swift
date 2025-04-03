@@ -18,3 +18,29 @@ public protocol Cas: AnyObject {
 func sha256Id(_ data: Data) -> String {
     SHA256.hash(data: data).base32()
 }
+
+struct CasWithSet {
+    let cas: Cas
+    let set: Set<String>
+    func fetchFrom(_ b: CasWithSet) throws {
+        let diff = b.set.subtracting(set)
+        for id in diff {
+            guard let data = try b.cas.get(id) else {
+                throw NSError(domain: "CasError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Data not found for id \(id)"])
+            }
+            try self.cas.add(data)
+        }
+    }
+}
+
+extension Cas {
+    func withSet() throws -> CasWithSet {
+        CasWithSet(cas: self, set: Set(try list()))
+    }
+    public func sync(_ cas: Cas) throws {
+        let a = try self.withSet()
+        let b = try cas.withSet()
+        try a.fetchFrom(b)
+        try b.fetchFrom(a)
+    }
+}
