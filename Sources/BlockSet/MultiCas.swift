@@ -1,8 +1,8 @@
 import Foundation
 
 public class MultiCas: Cas {
-    private var local: Cas
-    private var remote: Cas
+    public var local: Cas
+    public var remote: Cas
 
     public init(local: Cas, remote: Cas) {
         self.local = local
