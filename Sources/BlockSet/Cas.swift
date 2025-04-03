@@ -26,7 +26,7 @@ struct CasWithSet {
         let diff = b.set.subtracting(set)
         for id in diff {
             guard let data = try b.cas.get(id) else {
-                throw NSError(domain: "CasError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Data not found for id \(id)"])
+                continue
             }
             try self.cas.add(data)
         }

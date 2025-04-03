@@ -145,3 +145,20 @@ func model(_ cas: Cas) throws {
     let cas: Cas = FileCas(URL(filePath: dir))
     try mutable(cas)
 }
+
+@Test func sync1() throws {
+    let dir = ".test/sync/"
+    try? FileManager.default.removeItem(atPath: dir)
+    let dir1 = dir + "/1"
+    let dir2 = dir + "/2"
+    try! FileManager.default.createDirectory(atPath: dir1, withIntermediateDirectories: true)
+    try! FileManager.default.createDirectory(atPath: dir2, withIntermediateDirectories: true)
+    let cas1: Cas = FileCas(URL(filePath: dir1))
+    let cas2: Cas = FileCas(URL(filePath: dir2))
+    let data = Data([0, 1, 2, 3])
+    let id = try cas1.add(data)
+    #expect(try cas1.get(id) == data)
+    #expect(try cas2.get(id) == nil)
+    try cas1.sync(cas2)
+    #expect(try cas2.get(id) == data)
+}
