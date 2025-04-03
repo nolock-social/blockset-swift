@@ -39,6 +39,7 @@ extension Cas {
     private func withSet() throws -> CasWithSet {
         CasWithSet(cas: self, set: Set(try list()))
     }
+    /// Synchronizes two CASes.
     public func sync(_ cas: Cas) throws {
         let a = try self.withSet()
         let b = try cas.withSet()
