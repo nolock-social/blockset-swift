@@ -7,7 +7,7 @@ public class MemCas: Cas {
     public init() {}
 
     public func id(_ data: Data) -> String {
-        sha256Id(data)
+        data.sha256Id()
     }
 
     public func add(_ data: Data) -> String {

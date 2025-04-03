@@ -18,7 +18,7 @@ public class FileCas: Cas {
     }
 
     public func id(_ data: Data) -> String {
-        sha256Id(data)
+        data.sha256Id()
     }
 
     public func add(_ data: Data) throws -> String {
