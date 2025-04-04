@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import BlockSet
+import Html
 
 @Test func publicMemCas() async throws {
     let memCas: Cas = MemCas()
@@ -183,4 +184,69 @@ func model(_ cas: Cas) throws {
     #expect(try cas.get(id) == data)
     #expect(try casLocal.get(id) == data)
     #expect(try casRemote.get(id) == data)
+}
+
+@Test func receipt() throws {
+    let dir = ".test/receipt/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    let cas: Cas = FileCas(URL(filePath: dir))
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$1.00"
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    do {
+        let all = try cas.list()
+        #expect(all.count == 4)
+        let x = try cas.listMutable()
+        #expect(x.count == 1)
+        let r: Model<ReceiptModel> = try cas.loadJsonModel(x[0])!
+        #expect(r.value.price == "$1.00")
+    }
+}
+
+@Test func report() throws {
+    let imageData = try Data(contentsOf: URL(filePath: "Tests/BlockSetTests/receipt.jpg"))
+    let cas: Cas = MemCas()
+    let imageId = try cas.add(imageData)
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$1.00"
+        receipt.value.title = "Hello"
+        receipt.value.description = "World"
+        receipt.value.image.image = imageId
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$2.00"
+        receipt.value.title = "Hello"
+        receipt.value.description = "World"
+        receipt.value.image.image = imageId
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    //
+    let dir = ".test/report/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    //
+    let list = try cas.listMutable()
+    let ml = list.flatMap {
+        let r: Model<ReceiptModel>? = try? cas.loadJsonModel($0)
+        if let r = r {
+            return [r.value]
+        }
+        return []
+    }
+    try cas.report(receiptArray: ml, to: URL(filePath: dir))
 }

@@ -36,7 +36,7 @@ public class MultiCas: Cas {
         return nil
     }
 
-    public func list() throws -> AnySequence<String> {
+    public func list() throws -> [String] {
         try local.list()
     }
 

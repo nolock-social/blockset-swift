@@ -33,11 +33,11 @@ public class FileCas: Cas {
         try? Data(contentsOf: path(id))
     }
 
-    public func list() throws -> AnySequence<String> {
+    public func list() throws -> [String] {
         let result = try FileManager.default.contentsOfDirectory(
             at: dir, includingPropertiesForKeys: nil
         )
         .map { $0.lastPathComponent }
-        return AnySequence(result)
+        return result
     }
 }
