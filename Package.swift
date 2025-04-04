@@ -26,6 +26,7 @@ let package = Package(
             name: "BlockSet",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "Html", package: "swift-html"),
             ]
         ),
         .testTarget(

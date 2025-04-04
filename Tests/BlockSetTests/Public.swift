@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import BlockSet
+import Html
 
 @Test func publicMemCas() async throws {
     let memCas: Cas = MemCas()
@@ -206,4 +207,46 @@ func model(_ cas: Cas) throws {
         let r: Model<ReceiptModel> = try cas.loadJsonModel(x[0])!
         #expect(r.value.price == "$1.00")
     }
+}
+
+@Test func report() throws {
+    let cas: Cas = MemCas()
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$1.00"
+        receipt.value.title = "Hello"
+        receipt.value.description = "World"
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$2.00"
+        receipt.value.title = "Hello"
+        receipt.value.description = "World"
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    //
+    let dir = ".test/report/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    //
+    let list = try cas.listMutable()
+    let ml = list.flatMap {
+        let r: Model<ReceiptModel>? = try? cas.loadJsonModel($0)
+        if let r = r {
+            return [r.value]
+        }
+        return []
+    }
+    _ = FileManager.default.createFile(
+        atPath: dir + "/report.html",
+        contents: ml.toHtml().data(using: .utf8),
+        attributes: nil
+    )
 }
