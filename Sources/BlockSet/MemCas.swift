@@ -20,7 +20,7 @@ public class MemCas: Cas {
         blocks[id]
     }
 
-    public func list() -> AnySequence<String> {
-        AnySequence(self.blocks.keys)
+    public func list() -> [String] {
+        self.blocks.keys.map { $0 }
     }
 }

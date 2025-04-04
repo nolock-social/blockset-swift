@@ -199,6 +199,8 @@ func model(_ cas: Cas) throws {
         #expect(id0 != id1)
     }
     do {
+        let all = try cas.list()
+        #expect(all.count == 4)
         let x = try cas.listMutable()
         #expect(x.count == 1)
         let r: Model<ReceiptModel> = try cas.loadJsonModel(x[0])!

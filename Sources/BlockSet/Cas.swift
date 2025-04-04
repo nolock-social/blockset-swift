@@ -12,7 +12,7 @@ public protocol Cas: AnyObject {
     func get(_ id: String) throws -> Data?
 
     /// Returns a list of all identifiers.
-    func list() throws -> AnySequence<String>
+    func list() throws -> [String]
 }
 
 extension Data {
