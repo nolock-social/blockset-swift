@@ -49,7 +49,7 @@ public struct ReceiptModel: Codable, Hashable {
                 .td(.text("\(location.latitude), \(location.longitude)"))
             ),
             .tr(
-                .td(attributes: [.colspan(2)], .img(src: "\(image.image).jpg", alt: ""))
+                .td(attributes: [.colspan(2)], .img(src: "content/\(image.image).jpg", alt: ""))
             )
         )
     }
@@ -79,10 +79,12 @@ extension Cas {
             contents: html.data(using: .utf8),
             attributes: nil
         )
+        let content = to.appendingPathComponent("/content")
+        try FileManager.default.createDirectory(at: content, withIntermediateDirectories: false)
         for i in receiptArray {
             let imageId = i.image.image
             if let data = try? get(imageId) {
-                let imagePath = to.appendingPathComponent("\(imageId).jpg")
+                let imagePath = content.appendingPathComponent("\(imageId).jpg")
                 _ = FileManager.default.createFile(
                     atPath: imagePath.path,
                     contents: data,
