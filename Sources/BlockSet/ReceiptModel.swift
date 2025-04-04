@@ -31,10 +31,10 @@ public struct ReceiptModel: Codable, Hashable {
     public func toHtml() -> Node {
         return .table(
             .tr(
-                .td(.text(title))
+                .td(attributes: [.colspan(2)], .text(title))
             ),
             .tr(
-                .td(.text(description))
+                .td(attributes: [.colspan(2)], .text(description))
             ),
             .tr(
                 .td(.text("Total:")),
