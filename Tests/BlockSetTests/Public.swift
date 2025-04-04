@@ -184,3 +184,24 @@ func model(_ cas: Cas) throws {
     #expect(try casLocal.get(id) == data)
     #expect(try casRemote.get(id) == data)
 }
+
+@Test func receipt() throws {
+    let dir = ".test/receipt/"
+    try? FileManager.default.removeItem(atPath: dir)
+    try! FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+    let cas: Cas = FileCas(URL(filePath: dir))
+    do {
+        let receipt = Model.initial(ReceiptModel())
+        // save the receipt
+        let id0 = try cas.saveJsonModel(receipt)
+        receipt.value.price = "$1.00"
+        let id1 = try cas.saveJsonModel(receipt)
+        #expect(id0 != id1)
+    }
+    do {
+        let x = try cas.listMutable()
+        #expect(x.count == 1)
+        let r: Model<ReceiptModel> = try cas.loadJsonModel(x[0])!
+        #expect(r.value.price == "$1.00")
+    }
+}
