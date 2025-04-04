@@ -210,7 +210,9 @@ func model(_ cas: Cas) throws {
 }
 
 @Test func report() throws {
+    let imageData = try Data(contentsOf: URL(filePath: "Tests/BlockSetTests/receipt.jpg"))
     let cas: Cas = MemCas()
+    let imageId = try cas.add(imageData)
     do {
         let receipt = Model.initial(ReceiptModel())
         // save the receipt
@@ -218,6 +220,7 @@ func model(_ cas: Cas) throws {
         receipt.value.price = "$1.00"
         receipt.value.title = "Hello"
         receipt.value.description = "World"
+        receipt.value.image.image = imageId
         let id1 = try cas.saveJsonModel(receipt)
         #expect(id0 != id1)
     }
@@ -228,6 +231,7 @@ func model(_ cas: Cas) throws {
         receipt.value.price = "$2.00"
         receipt.value.title = "Hello"
         receipt.value.description = "World"
+        receipt.value.image.image = imageId
         let id1 = try cas.saveJsonModel(receipt)
         #expect(id0 != id1)
     }
@@ -244,9 +248,5 @@ func model(_ cas: Cas) throws {
         }
         return []
     }
-    _ = FileManager.default.createFile(
-        atPath: dir + "/report.html",
-        contents: ml.toHtml().data(using: .utf8),
-        attributes: nil
-    )
+    try cas.report(receiptArray: ml, to: URL(filePath: dir))
 }
