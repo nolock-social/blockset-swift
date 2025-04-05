@@ -20,7 +20,9 @@ import Html
     let id = try fileCas.add(data)
     #expect(try fileCas.get(id) == data)
     #expect(try fileCas.get("nonexistent") == nil)
-    #expect(try fileCas.list().contains(id))
+    let list = try fileCas.list()
+    #expect(list.count == 1)
+    #expect(try list.contains(id))
 }
 
 func mutable(_ cas: Cas) throws {
