@@ -8,13 +8,19 @@ extension Substring {
 }
 
 extension URL {
-    func list() throws -> [URL] {
-        try FileManager.default.contentsOfDirectory(
-            at: self, includingPropertiesForKeys: nil
-        )
-    }
     func appending(_ p: Substring, _ isDir: Bool) -> URL {
         appendingPathComponent(String(p), isDirectory: isDir)
+    }
+    func isDirectory() throws -> Bool {
+        (try resourceValues(forKeys: [.isDirectoryKey])).isDirectory ?? false
+    }
+    func list(_ p: String = "") throws -> [String] {
+        try FileManager.default.contentsOfDirectory(
+            at: self, includingPropertiesForKeys: nil
+        ).flatMap {
+            let x = p + $0.lastPathComponent
+            return try $0.isDirectory() ? try $0.list(x) : [x]
+        }
     }
 }
 
@@ -52,19 +58,10 @@ public class FileCas: Cas {
     public func get(_ id: String) -> Data? {
         // TODO: check errors. if the file doesn't exist, return nil
         // otherwise, throw the error
-        return try? Data(contentsOf: path(id))
+        try? Data(contentsOf: path(id))
     }
 
     public func list() throws -> [String] {
-        try dir
-            .list()
-            .flatMap {
-                let a = $0.lastPathComponent
-                return try $0.list()
-                    .flatMap {
-                        let b = $0.lastPathComponent
-                        return try $0.list().map { "\(a)\(b)\($0.lastPathComponent)" }
-                    }
-            }
+        try dir.list()
     }
 }
