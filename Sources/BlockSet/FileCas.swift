@@ -16,6 +16,17 @@ struct Path {
     }
 }
 
+extension URL {
+    func list() throws -> [URL] {
+        try FileManager.default.contentsOfDirectory(
+            at: self, includingPropertiesForKeys: nil
+        )
+    }
+    func appendDir(_ dir: Substring) -> URL {
+        appendingPathComponent(String(dir), isDirectory: true)
+    }
+}
+
 public class FileCas: Cas {
 
     // private:
@@ -26,10 +37,7 @@ public class FileCas: Cas {
         let (a, bc) = id[...].split2()
         let (b, c) = bc.split2()
         return Path(
-            dir:
-                dir
-                .appendingPathComponent(String(a), isDirectory: true)
-                .appendingPathComponent(String(b), isDirectory: true),
+            dir: dir.appendDir(a).appendDir(b),
             file: String(c)
         )
     }
@@ -59,18 +67,13 @@ public class FileCas: Cas {
     }
 
     public func list() throws -> [String] {
-        let result = try FileManager.default.contentsOfDirectory(
-            at: dir, includingPropertiesForKeys: nil
-        )
+        let result = try dir.list()
         .flatMap {
             let a = $0.lastPathComponent
-            return try FileManager.default.contentsOfDirectory(
-                at: $0, includingPropertiesForKeys: nil
-            ).flatMap {
+            return try $0.list()
+            .flatMap {
                 let b = $0.lastPathComponent
-                return try FileManager.default.contentsOfDirectory(
-                    at: $0, includingPropertiesForKeys: nil
-                ).map { "\(a)\(b)\($0.lastPathComponent)" }
+                return try $0.list().map { "\(a)\(b)\($0.lastPathComponent)" }
             }
         }
         return result
