@@ -67,15 +67,15 @@ public class FileCas: Cas {
     }
 
     public func list() throws -> [String] {
-        let result = try dir.list()
-        .flatMap {
-            let a = $0.lastPathComponent
-            return try $0.list()
+        try dir
+            .list()
             .flatMap {
-                let b = $0.lastPathComponent
-                return try $0.list().map { "\(a)\(b)\($0.lastPathComponent)" }
+                let a = $0.lastPathComponent
+                return try $0.list()
+                    .flatMap {
+                        let b = $0.lastPathComponent
+                        return try $0.list().map { "\(a)\(b)\($0.lastPathComponent)" }
+                    }
             }
-        }
-        return result
     }
 }
