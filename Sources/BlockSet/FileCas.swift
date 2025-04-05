@@ -7,23 +7,14 @@ extension Substring {
     }
 }
 
-struct Path {
-    let dir: URL
-    let file: String
-
-    func url() -> URL {
-        dir.appendingPathComponent(file, isDirectory: false)
-    }
-}
-
 extension URL {
     func list() throws -> [URL] {
         try FileManager.default.contentsOfDirectory(
             at: self, includingPropertiesForKeys: nil
         )
     }
-    func appendDir(_ dir: Substring) -> URL {
-        appendingPathComponent(String(dir), isDirectory: true)
+    func appending(_ p: Substring, _ isDir: Bool) -> URL {
+        appendingPathComponent(String(p), isDirectory: isDir)
     }
 }
 
@@ -33,13 +24,10 @@ public class FileCas: Cas {
 
     private let dir: URL
 
-    private func path(_ id: String) -> Path {
+    private func path(_ id: String) -> URL {
         let (a, bc) = id[...].split2()
         let (b, c) = bc.split2()
-        return Path(
-            dir: dir.appendDir(a).appendDir(b),
-            file: String(c)
-        )
+        return dir.appending(a, true).appending(b, true).appending(c, false)
     }
 
     // public:
@@ -55,15 +43,16 @@ public class FileCas: Cas {
     public func add(_ data: Data) throws -> String {
         let id = id(data)
         let p = path(id)
-        try FileManager.default.createDirectory(at: p.dir, withIntermediateDirectories: true)
-        try data.write(to: p.url())
+        try FileManager.default.createDirectory(
+            at: p.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: p)
         return id
     }
 
     public func get(_ id: String) -> Data? {
         // TODO: check errors. if the file doesn't exist, return nil
         // otherwise, throw the error
-        return try? Data(contentsOf: path(id).url())
+        return try? Data(contentsOf: path(id))
     }
 
     public func list() throws -> [String] {

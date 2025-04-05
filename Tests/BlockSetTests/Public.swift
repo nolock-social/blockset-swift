@@ -22,7 +22,7 @@ import Html
     #expect(try fileCas.get("nonexistent") == nil)
     let list = try fileCas.list()
     #expect(list.count == 1)
-    #expect(try list.contains(id))
+    #expect(list.contains(id))
 }
 
 func mutable(_ cas: Cas) throws {
