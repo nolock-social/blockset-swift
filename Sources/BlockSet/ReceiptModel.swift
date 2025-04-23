@@ -22,6 +22,7 @@ public struct ReceiptModel: Codable, Hashable {
     public var title: String = ""
     public var description: String = ""
     public var imageList: [String]? = nil
+    public var owner: String = ""
 
     public var date: Double = 0
     public var location: LocationModel = LocationModel()
