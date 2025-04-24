@@ -1,6 +1,29 @@
 import Crypto
 import Foundation
 
+extension Substring {
+    func split2() -> (Substring, Substring) {
+        (self.prefix(2), self.dropFirst(2))
+    }
+}
+
+extension URL {
+    func appending(_ p: Substring, _ isDir: Bool) -> URL {
+        appendingPathComponent(String(p), isDirectory: isDir)
+    }
+    func isDirectory() throws -> Bool {
+        (try resourceValues(forKeys: [.isDirectoryKey])).isDirectory ?? false
+    }
+    func list(_ p: String = "") throws -> [String] {
+        try FileManager.default.contentsOfDirectory(
+            at: self, includingPropertiesForKeys: nil
+        ).flatMap {
+            let x = p + $0.lastPathComponent
+            return try $0.isDirectory() ? try $0.list(x) : [x]
+        }
+    }
+}
+
 public class FileCas: Cas {
 
     // private:
@@ -8,7 +31,9 @@ public class FileCas: Cas {
     private let dir: URL
 
     private func path(_ id: String) -> URL {
-        dir.appendingPathComponent(id)
+        let (a, bc) = id[...].split2()
+        let (b, c) = bc.split2()
+        return dir.appending(a, true).appending(b, true).appending(c, false)
     }
 
     // public:
@@ -23,7 +48,10 @@ public class FileCas: Cas {
 
     public func add(_ data: Data) throws -> String {
         let id = id(data)
-        try data.write(to: path(id))
+        let p = path(id)
+        try FileManager.default.createDirectory(
+            at: p.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: p)
         return id
     }
 
@@ -34,10 +62,6 @@ public class FileCas: Cas {
     }
 
     public func list() throws -> [String] {
-        let result = try FileManager.default.contentsOfDirectory(
-            at: dir, includingPropertiesForKeys: nil
-        )
-        .map { $0.lastPathComponent }
-        return result
+        try dir.list()
     }
 }
