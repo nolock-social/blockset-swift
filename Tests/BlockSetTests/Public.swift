@@ -195,7 +195,7 @@ func model(_ cas: Cas) throws {
         let receipt = Model.initial(ReceiptModel())
         // save the receipt
         let id0 = try cas.saveJsonModel(receipt)
-        receipt.value.price = "$1.00"
+        receipt.value.price = 1.00
         let id1 = try cas.saveJsonModel(receipt)
         #expect(id0 != id1)
     }
@@ -205,7 +205,7 @@ func model(_ cas: Cas) throws {
         let x = try cas.listMutable()
         #expect(x.count == 1)
         let r: Model<ReceiptModel> = try cas.loadJsonModel(x[0])!
-        #expect(r.value.price == "$1.00")
+        #expect(r.value.price == 1.00)
     }
 }
 
@@ -217,7 +217,7 @@ func model(_ cas: Cas) throws {
         let receipt = Model.initial(ReceiptModel())
         // save the receipt
         let id0 = try cas.saveJsonModel(receipt)
-        receipt.value.price = "$1.00"
+        receipt.value.price = 1.00
         receipt.value.title = "Hello"
         receipt.value.description = "World"
         receipt.value.image.image = imageId
@@ -228,7 +228,7 @@ func model(_ cas: Cas) throws {
         let receipt = Model.initial(ReceiptModel())
         // save the receipt
         let id0 = try cas.saveJsonModel(receipt)
-        receipt.value.price = "$2.00"
+        receipt.value.price = 2.00
         receipt.value.title = "Hello"
         receipt.value.description = "World"
         receipt.value.image.image = imageId
