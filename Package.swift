@@ -27,6 +27,9 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "Html", package: "swift-html"),
+            ],
+            resources: [
+                .process("Resources"),
             ]
         ),
         .testTarget(
