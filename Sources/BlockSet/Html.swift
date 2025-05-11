@@ -1,3 +1,5 @@
+// Definitions of HTML types
+
 public typealias Element = (
     name: String,
     attributes: [String: String],
@@ -17,7 +19,7 @@ public func e(_ name: String, _ children: Child...) -> Child {
     return .e((name, [:], children))
 }
 
-//
+// Rendering HTML
 
 func str(_ s: String) -> String {
     return s
