@@ -25,9 +25,6 @@ let package = Package(
             name: "BlockSet",
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
-            ],
-            resources: [
-                .process("Resources"),
             ]
         ),
         .testTarget(

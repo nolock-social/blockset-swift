@@ -28,11 +28,6 @@ public struct ReceiptModel: Codable, Hashable {
     public init() {}
 }
 
-let css = try! String(
-    contentsOf: Bundle.module.url(forResource: "style", withExtension: "css")!,
-    encoding: .utf8
-)
-
 extension [ReceiptModel] {
     public func toHtml() -> String {
         let node = e("html",
