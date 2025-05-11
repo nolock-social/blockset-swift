@@ -62,8 +62,8 @@ func str(_ c: Child) -> String {
 }
 
 func str(_ e: Element) -> String {
-    let body = voidTags.contains(e.name) ? "" : e.children.map(str).joined() + "</\(e.name)>"
-    return "<\(e.name)" + e.attributes.map(str).joined() + ">" + body
+    let tail = voidTags.contains(e.name) ? "" : e.children.map(str).joined() + "</\(e.name)>"
+    return "<\(e.name)" + e.attributes.map(str).joined() + ">" + tail
 }
 
 public func html(_ c: Child) -> String {
