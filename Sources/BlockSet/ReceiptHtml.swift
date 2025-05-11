@@ -20,7 +20,9 @@ extension ReceiptModel {
                 e("td", .t("\(location.latitude), \(location.longitude)"))
             ),
             e("tr",
-                e("td", [("colspan", "2")], e("img", [("src", "content/\(image.image).jpg")]))
+                e("td", [("colspan", "2")],
+                    e("img", [("src", "content/\(image.image).jpg")])
+                )
             )
         )
     }
@@ -30,7 +32,8 @@ extension [ReceiptModel] {
     public func toHtml() -> String {
         let node = e("html",
             e("head",
-                e("title", .t("Receipt List"))
+                e("title", .t("Receipt List")),
+                e("style")
             ),
             .e(("body", [], self.map { $0.toHtml() }))
         )
