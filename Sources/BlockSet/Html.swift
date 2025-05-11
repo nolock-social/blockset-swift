@@ -19,6 +19,8 @@ public func e(_ name: String, _ children: Child...) -> Child {
     return .e((name, [:], children))
 }
 
+typealias Attribute = (key: String, value: String)
+
 // Rendering HTML
 
 func str(_ s: String) -> String {
@@ -29,10 +31,8 @@ func str(_ s: String) -> String {
         .replacingOccurrences(of: "\"", with: "&quot;")
 }
 
-typealias Attribute = (key: String, value: String)
-
 func str(_ a: Attribute) -> String {
-    return " \(a.key)=\"\(str(a.value))\""
+    " \(a.key)=\"\(str(a.value))\""
 }
 
 let voidTags: Set<String> = [
@@ -62,10 +62,10 @@ func str(_ c: Child) -> String {
 }
 
 func str(_ e: Element) -> String {
-    let tail = voidTags.contains(e.name) ? "" : e.children.map(str).joined() + "</\(e.name)>"
-    return "<\(e.name)" + e.attributes.map(str).joined() + ">" + tail
+    "<\(e.name)" + e.attributes.map(str).joined() + ">" +
+    (voidTags.contains(e.name) ? "" : (e.children.map(str).joined() + "</\(e.name)>"))
 }
 
 public func html(_ c: Child) -> String {
-    return "<!DOCTYPE html>" + str(c)
+    "<!DOCTYPE html>" + str(c)
 }
