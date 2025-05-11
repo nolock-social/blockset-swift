@@ -10,8 +10,8 @@ import Testing
             e("title", .t("My Page"))
         ),
         e(
-            "body", ["class": "main"],
-            e("img", ["src": "logo.png", "alt": "Logo"]),
+            "body", [("class", "main")],
+            e("img", [("src", "logo.png"), ("alt", "Logo")]),
             e("p", .t("Welcome & enjoy <Swift>!"))
         )
     )

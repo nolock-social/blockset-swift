@@ -1,8 +1,12 @@
 // Definitions of HTML types
 
+public typealias Attribute = (key: String, value: String)
+
+public typealias Attributes = [Attribute]
+
 public typealias Element = (
     name: String,
-    attributes: [String: String],
+    attributes: Attributes,
     children: [Child]
 )
 
@@ -11,15 +15,13 @@ public enum Child {
     case t(String)
 }
 
-public func e(_ name: String, _ attributes: [String: String], _ children: Child...) -> Child {
+public func e(_ name: String, _ attributes: Attributes, _ children: Child...) -> Child {
     return .e((name, attributes, children))
 }
 
 public func e(_ name: String, _ children: Child...) -> Child {
-    return .e((name, [:], children))
+    return .e((name, [], children))
 }
-
-typealias Attribute = (key: String, value: String)
 
 // Rendering HTML
 
