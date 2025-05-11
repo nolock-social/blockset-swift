@@ -1,4 +1,3 @@
-import Html
 import Foundation
 
 public struct LocationModel: Codable, Hashable {
@@ -28,28 +27,28 @@ public struct ReceiptModel: Codable, Hashable {
 
     public init() {}
 
-    public func toHtml() -> Node {
-        return .table(
-            .tr(
-                .td(attributes: [.colspan(2)], .text(title))
+    public func toHtml() -> Child {
+        return e("table",
+            e("tr",
+                e("td", ["colspan": "2"], .t(title))
             ),
-            .tr(
-                .td(attributes: [.colspan(2)], .text(description))
+            e("tr",
+                e("td", ["colspan": "2"], .t(description))
             ),
-            .tr(
-                .td(.text("Total:")),
-                .td(.text(price))
+            e("tr",
+                e("td", .t("Total:")),
+                e("td", .t(price))
             ),
-            .tr(
-                .td(.text("Date:")),
-                .td(.text("\(date)"))
+            e("tr",
+                e("td", .t("Date:")),
+                e("td", .t("\(date)"))
             ),
-            .tr(
-                .td("Location:"),
-                .td(.text("\(location.latitude), \(location.longitude)"))
+            e("tr",
+                e("td", .t("Location:")),
+                e("td", .t("\(location.latitude), \(location.longitude)"))
             ),
-            .tr(
-                .td(attributes: [.colspan(2)], .img(src: "content/\(image.image).jpg", alt: ""))
+            e("tr",
+                e("td", ["colspan": "2"], e("img", ["src": "content/\(image.image).jpg"]))
             )
         )
     }
@@ -57,17 +56,11 @@ public struct ReceiptModel: Codable, Hashable {
 
 extension [ReceiptModel] {
     public func toHtml() -> String {
-        let node = Node.document(
-            .html(
-                .head(
-                    .title("Receipt List")
-                ),
-                .body(
-                    .fragment(self.map { $0.toHtml() })
-                )
-            )
+        let node = e("html",
+            e("head", ["title": "Receipt List"]),
+            .e(("body", [:], self.map { $0.toHtml() }))
         )
-        return render(node)
+        return html(node)
     }
 }
 
