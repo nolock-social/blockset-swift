@@ -26,9 +26,7 @@ public struct ReceiptModel: Codable, Hashable {
     public var location: LocationModel = LocationModel()
 
     public init() {}
-}
 
-extension ReceiptModel {
     public func toHtml() -> Child {
         return e("table",
             e("tr",
