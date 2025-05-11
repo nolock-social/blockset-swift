@@ -48,7 +48,7 @@ public struct ReceiptModel: Codable, Hashable {
                 e("td", .t("\(location.latitude), \(location.longitude)"))
             ),
             e("tr",
-                e("td", ["colspan": "2"], e("img", ["src": "content/\(image.image).jpg", "alt": ""]))
+                e("td", ["colspan": "2"], e("img", ["src": "content/\(image.image).jpg"]))
             )
         )
     }
