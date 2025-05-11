@@ -68,6 +68,6 @@ func str(_ e: Element) -> String {
     return "<\(e.name)" + e.attributes.map(str).joined() + ">" + body
 }
 
-func html(_ e: Element) -> String {
-    return "<!DOCTYPE html>" + str(e)
+public func html(_ c: Child) -> String {
+    return "<!DOCTYPE html>" + str(c)
 }

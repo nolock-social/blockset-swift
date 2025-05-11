@@ -1,15 +1,23 @@
+import BlockSet
 import Foundation
 import Testing
-import BlockSet
 
 @Test func html() {
-    let element = e("div", ["class": "container"],
-        e("h1", .t("Hello, World!")),
-        e("p", .t("This is a test.")),
-        e("ul",
-            e("li", .t("Item 1")),
-            e("li", .t("Item 2")),
-            e("li", .t("Item 3"))
+    let page = e(
+        "html",
+        e(
+            "head",
+            e("title", .t("My Page"))
+        ),
+        e(
+            "body", ["class": "main"],
+            e("img", ["src": "logo.png", "alt": "Logo"]),
+            e("p", .t("Welcome & enjoy <Swift>!"))
         )
     )
+    let x = html(page)
+    #expect(
+        x == """
+            <!DOCTYPE html><html><head><title>My Page</title></head><body class="main"><img src="logo.png" alt="Logo"><p>Welcome &amp; enjoy &lt;Swift&gt;!</p></body></html>
+            """)
 }
