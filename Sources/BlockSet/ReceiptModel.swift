@@ -27,7 +27,31 @@ public struct ReceiptModel: Codable, Hashable {
     public var location: LocationModel = LocationModel()
 
     public init() {}
+}
 
+let css = try! String(
+    contentsOf: Bundle.module.url(forResource: "style", withExtension: "css")!,
+    encoding: .utf8
+)
+
+extension [ReceiptModel] {
+    public func toHtml() -> String {
+        let node = Node.document(
+            .html(
+                .head(
+                    .title("Receipt List")
+                    // custom(.style, [.raw(css)]) as ChildOf<Tag.Head>
+                ),
+                .body(
+                    .fragment(self.map { $0.toHtml() })
+                )
+            )
+        )
+        return render(node)
+    }
+}
+
+extension ReceiptModel {
     public func toHtml() -> Node {
         return .table(
             .tr(
@@ -52,22 +76,6 @@ public struct ReceiptModel: Codable, Hashable {
                 .td(attributes: [.colspan(2)], .img(src: "content/\(image.image).jpg", alt: ""))
             )
         )
-    }
-}
-
-extension [ReceiptModel] {
-    public func toHtml() -> String {
-        let node = Node.document(
-            .html(
-                .head(
-                    .title("Receipt List")
-                ),
-                .body(
-                    .fragment(self.map { $0.toHtml() })
-                )
-            )
-        )
-        return render(node)
     }
 }
 
