@@ -27,10 +27,10 @@ public func e(_ name: String, _ children: Child...) -> Child {
 
 func str(_ s: String) -> String {
     return s
-        .replacingOccurrences(of: "&", with: "&amp;")
-        .replacingOccurrences(of: "<", with: "&lt;")
-        .replacingOccurrences(of: ">", with: "&gt;")
-        .replacingOccurrences(of: "\"", with: "&quot;")
+        //.replacingOccurrences(of: "&", with: "&amp;")
+        //.replacingOccurrences(of: "<", with: "&lt;")
+        //.replacingOccurrences(of: ">", with: "&gt;")
+        //.replacingOccurrences(of: "\"", with: "&quot;")
 }
 
 func str(_ a: Attribute) -> String {
