@@ -1,7 +1,6 @@
 import Foundation
 import Testing
 import BlockSet
-import Html
 
 @Test func publicMemCas() async throws {
     let memCas: Cas = MemCas()
