@@ -28,16 +28,6 @@ public struct ReceiptModel: Codable, Hashable {
     public init() {}
 }
 
-extension [ReceiptModel] {
-    public func toHtml() -> String {
-        let node = e("html",
-            e("head", ["title": "Receipt List"]),
-            .e(("body", [:], self.map { $0.toHtml() }))
-        )
-        return html(node)
-    }
-}
-
 extension ReceiptModel {
     public func toHtml() -> Child {
         return e("table",
@@ -63,6 +53,16 @@ extension ReceiptModel {
                 e("td", ["colspan": "2"], e("img", ["src": "content/\(image.image).jpg", "alt": ""]))
             )
         )
+    }
+}
+
+extension [ReceiptModel] {
+    public func toHtml() -> String {
+        let node = e("html",
+            e("head", ["title": "Receipt List"]),
+            .e(("body", [:], self.map { $0.toHtml() }))
+        )
+        return html(node)
     }
 }
 
