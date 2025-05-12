@@ -17,13 +17,14 @@ public struct ImageModel: Codable, Hashable {
 
 public struct ReceiptModel: Codable, Hashable {
     public var image: ImageModel = ImageModel()
-    public var price: String = ""
+    public var price: Double = 00
     public var title: String = ""
     public var description: String = ""
+    public var notes: String = ""
     public var imageList: [String]? = nil
 
-    public var date: Double = 0
-    public var location: LocationModel = LocationModel()
+    public var date: String = ""
+    public var location: String = ""
 
     public init() {}
 }
