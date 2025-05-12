@@ -15,7 +15,7 @@ extension ReceiptModel {
             e(
                 "tr",
                 e("th", .t("Total:")),
-                e("th", .t(price))
+                e("th", .t("\(price)"))
             ),
             e(
                 "tr",
@@ -25,7 +25,7 @@ extension ReceiptModel {
             e(
                 "tr",
                 e("td", .t("Location:")),
-                e("td", .t("\(location.latitude), \(location.longitude)"))
+                e("td", .t(location))
             ),
             e(
                 "tr",
