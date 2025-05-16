@@ -3,7 +3,7 @@ import Foundation
 public struct ImageModel: Codable, Hashable {
     public var image: String = String()
     public var date: Double = Double()
-    public var location: LocationModel = LocationModel()
+    public var location: String = String()
 
     public init() {}
 }
