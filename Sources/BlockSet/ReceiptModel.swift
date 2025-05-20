@@ -10,7 +10,7 @@ public struct ImageModel: Codable, Hashable {
 
 public struct ReceiptModel: Codable, Hashable {
     public var image: ImageModel = ImageModel()
-    public var price: Double = Double()
+    public var price: Decimal = Decimal()
     public var currency: String = String()
     public var title: String = String()
     public var description: String = String()
