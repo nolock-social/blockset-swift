@@ -15,7 +15,11 @@ public struct ReceiptModel: Codable, Hashable {
     public var title: String = String()
     public var description: String = String()
     public var notes: String = String()
+
     public var imageList: [String]? = nil
+
+    ///Source of data. ex AI, or human
+    public var source: String? = nil
 
     public var date: String = ""
     public var location: String = ""
