@@ -67,7 +67,9 @@ extension Cas {
     public func saveJson<T: Encodable>(_ mutable: Mutable, _ value: T?) throws -> String? {
         var data: Data?
         if let value = value {
-            data = try JSONEncoder().encode(value)
+        let encoder = JSONEncoder()
+            encoder.outputFormatting = .sortedKeys
+            data = try encoder.encode(value)
         }
         return try saveData(mutable, data)
     }
