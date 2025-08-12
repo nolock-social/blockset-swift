@@ -30,7 +30,7 @@ public class FileCas: Cas {
 
     private let dir: URL
 
-    private func path(_ id: String) -> URL {
+    public func path(_ id: String) -> URL {
         let (a, bc) = id[...].split2()
         let (b, c) = bc.split2()
         return dir.appending(a, true).appending(b, true).appending(c, false)
