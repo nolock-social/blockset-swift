@@ -221,7 +221,7 @@ func model(_ cas: Cas) throws {
         receipt.value.price = 1.00
         receipt.value.title = "Title"
         receipt.value.description = "Description"
-        receipt.value.image.image = imageId
+        receipt.value.image = imageId
         let id1 = try cas.saveJsonModel(receipt)
         #expect(id0 != id1)
     }
@@ -232,7 +232,7 @@ func model(_ cas: Cas) throws {
         receipt.value.price = 2.00
         receipt.value.title = "Hello"
         receipt.value.description = "World"
-        receipt.value.image.image = imageId
+        receipt.value.image = imageId
         let id1 = try cas.saveJsonModel(receipt)
         #expect(id0 != id1)
     }
