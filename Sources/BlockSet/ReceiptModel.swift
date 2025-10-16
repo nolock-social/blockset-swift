@@ -37,6 +37,11 @@ public struct Location: Codable {
     public var longitude: Double
     public var formattedAddress: String?
     public var source: LocationSource?
+
+    public init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
 }
 
 // MARK: - Location source types
@@ -51,10 +56,12 @@ public enum LocationSource: String, Codable {
 
 // MARK: - Receipt item model
 public struct ReceiptItem: Codable {
-    public var name: String
-    public var quantity: Double
-    public var unitPrice: Double
-    public var totalPrice: Double
+    public var name: String?
+    public var quantity: Double?
+    public var unitPrice: Double?
+    public var totalPrice: Double?
+
+    public init() {}
 }
 
 // MARK: - OCR metadata
