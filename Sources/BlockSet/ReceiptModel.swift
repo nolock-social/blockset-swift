@@ -55,7 +55,7 @@ public enum LocationSource: String, Codable {
 }
 
 // MARK: - Receipt item model
-public struct ReceiptItem: Codable, Equatable {
+public struct ReceiptItem: Codable, Equatable, Hashable {
     public var name: String?
     public var quantity: Double?
     public var unitPrice: Double?
