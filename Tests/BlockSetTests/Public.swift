@@ -249,5 +249,5 @@ func model(_ cas: Cas) throws {
         }
         return []
     }
-    try cas.report(receiptArray: ml, to: URL(filePath: dir))
+    // try cas.report(receiptArray: ml, to: URL(filePath: dir))
 }
