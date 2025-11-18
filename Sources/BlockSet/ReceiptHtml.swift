@@ -1,7 +1,8 @@
 import Foundation
 
 extension ReceiptModel {
-    public func toHtml() -> Child {
+    // Принимаем готовую Data изображения
+    public func toHtml(imageData: Data?) -> Child {
         let dateString: String = {
             guard let timestamp = date else { return "" }
             return Date(timeIntervalSince1970: timestamp).convertToString()
@@ -13,16 +14,7 @@ extension ReceiptModel {
         }()
 
         let imageDataUri: String = {
-            guard let imageName = image else { return "" }
-
-            var imageData: Data?
-
-            if let url = URL(string: imageName), let data = try? Data(contentsOf: url) {
-                imageData = data
-            }
-
             guard let data = imageData else { return "" }
-
             let base64String = data.base64EncodedString()
             return "data:image/jpeg;base64,\(base64String)"
         }()
@@ -121,7 +113,7 @@ let styleCss = try! String(
     encoding: .utf8
 )
 
-extension [ReceiptModel] {
+extension [(model: ReceiptModel, imageData: Data?)] {
     public func toHtml() -> String {
         let node = e(
             "html",
@@ -133,7 +125,7 @@ extension [ReceiptModel] {
             ),
             e("body",
                 .e(("div", [("class", "container")],
-                    self.map { $0.toHtml() }
+                    self.map { $0.model.toHtml(imageData: $0.imageData) }
                 ))
             )
         )
