@@ -17,7 +17,7 @@ extension ReceiptModel {
 
             var imageData: Data?
 
-            if let data = try? Data(contentsOf: URL(fileURLWithPath: imageName)) {
+            if let url = URL(string: imageName), let data = try? Data(contentsOf: url) {
                 imageData = data
             }
 
