@@ -45,7 +45,7 @@ public struct Location: Codable {
 }
 
 // MARK: - Location source types
-public enum LocationSource: String, Codable {
+public enum LocationSource: Codable {
     /** Location extracted from image metadata (EXIF) */
     case exif
     /** Location extracted by AI analysis */
@@ -55,8 +55,7 @@ public enum LocationSource: String, Codable {
 }
 
 // MARK: - Receipt item model
-public struct ReceiptItem: Identifiable, Codable, Equatable, Hashable {
-    public var id = UUID().uuidString
+public struct ReceiptItem: Codable {
     public var name: String?
     public var quantity: Double?
     public var unitPrice: Double?
@@ -84,29 +83,4 @@ public enum ReceiptProcessingStatus: String, Codable {
     case processed
     case applied
     case failed
-}
-
-extension Cas {
-    // public func report(receiptArray: [ReceiptModel], to: URL) throws {
-    //     let html = receiptArray.toHtml()
-    //     _ = FileManager.default.createFile(
-    //         atPath: to.path + "/index.html",
-    //         contents: html.data(using: .utf8),
-    //         attributes: nil
-    //     )
-    //     let content = to.appendingPathComponent("/content")
-    //     try FileManager.default.createDirectory(at: content, withIntermediateDirectories: false)
-    //     for i in receiptArray {
-
-    //     guard let imageId = i.image else { continue }
-    //         if let data = try? get(imageId) {
-    //             let imagePath = content.appendingPathComponent("\(imageId).jpg")
-    //             _ = FileManager.default.createFile(
-    //                 atPath: imagePath.path,
-    //                 contents: data,
-    //                 attributes: nil
-    //             )
-    //         }
-    //     }
-    // }
 }
