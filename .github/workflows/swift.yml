@@ -5,9 +5,9 @@ name: Swift
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -18,16 +18,17 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Set up Swift (only on Ubuntu)
+      - name: Set up Swift on Ubuntu (skip signature check)
         if: matrix.os == 'ubuntu-latest'
-        uses: k-arindam/setup-swift@v5
+        uses: k-arindam/setup-swift@v6.0.0
         with:
           swift-version: "6.0"
+          skip-signature-check: true
 
-      - uses: actions/checkout@v4
+      - name: Check out sources
+        uses: actions/checkout@v4
 
       - run: swift --version
       - run: swift package resolve
       - run: swift build
       - run: swift test
-
