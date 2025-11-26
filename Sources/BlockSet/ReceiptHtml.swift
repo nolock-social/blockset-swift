@@ -8,9 +8,9 @@ extension ReceiptModel {
             return Date(timeIntervalSince1970: timestamp).convertToString()
         }()
 
-        let priceString: String = {
-            guard let priceValue = price else { return "" }
-            return String(format: "%.2f", priceValue)
+        let priceString: Decimal = {
+            guard let priceValue = price else { return Decimal() }
+            return priceValue
         }()
 
         let imageDataUri: String = {
@@ -84,7 +84,7 @@ extension ReceiptModel {
                     ),
                     e("tr",
                         e("th", .t("Total:")),
-                        e("td", .t(priceString))
+                        e("td", .t("\(priceString)"))
                     ),
                     e("tr",
                         e("th", .t("Date:")),

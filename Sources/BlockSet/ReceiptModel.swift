@@ -8,7 +8,7 @@ public struct ReceiptModel: Codable {
     public var date: Double?
 
     /** Total amount on the receipt, stored as a decimal-compatible Double for cross-platform safety */
-    public var price: Double?
+    public var price: Decimal?
 
     /** Title that the user can assign to the receipt */
     public var title: String?
