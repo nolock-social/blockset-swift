@@ -36,6 +36,10 @@ public class MultiCas: Cas {
         return nil
     }
 
+    public func path(_ id: String) -> URL {
+        local.path(id)
+    }
+
     public func list() throws -> [String] {
         try local.list()
     }

@@ -20,6 +20,10 @@ public class MemCas: Cas {
         blocks[id]
     }
 
+    public func path(_ id: String) -> URL {
+return URL(string: "")!
+    }
+
     public func list() -> [String] {
         self.blocks.keys.map { $0 }
     }

@@ -13,6 +13,9 @@ public protocol Cas: AnyObject {
 
     /// Returns a list of all identifiers.
     func list() throws -> [String]
+
+       /// Returns path to file
+    func path(_ id: String) -> URL
 }
 
 extension Data {
