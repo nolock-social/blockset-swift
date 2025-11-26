@@ -58,8 +58,8 @@ public enum LocationSource: Codable {
 public struct ReceiptItem: Codable {
     public var name: String?
     public var quantity: Double?
-    public var unitPrice: Double?
-    public var totalPrice: Double?
+    public var unitPrice: Decimal?
+    public var totalPrice: Decimal?
 
     public init() {}
 }
