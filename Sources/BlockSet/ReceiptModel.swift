@@ -7,8 +7,8 @@ public struct ReceiptModel: Codable {
     /** Date or timestamp of the receipt */
     public var date: Double?
 
-    /** Total amount on the receipt, stored as a decimal-compatible Double for cross-platform safety */
-    public var price: Double?
+    /** Total amount on the receipt, stored as a decimal type for cross-platform safety */
+    public var price: Decimal?
 
     /** Title that the user can assign to the receipt */
     public var title: String?
@@ -58,8 +58,8 @@ public enum LocationSource: Codable {
 public struct ReceiptItem: Codable {
     public var name: String?
     public var quantity: Double?
-    public var unitPrice: Double?
-    public var totalPrice: Double?
+    public var unitPrice: Decimal?
+    public var totalPrice: Decimal?
 
     public init() {}
 }
@@ -88,18 +88,34 @@ public enum ReceiptProcessingStatus: String, Codable {
 
 extension Cas {
     public func report(receiptArray: [ReceiptModel], to: URL) throws {
-        let html = receiptArray.toHtml()
+        let modelsWithImages: [(model: ReceiptModel, imageData: Data?)] =
+            receiptArray.map { model in
+                let imageData: Data?
+                if let imageId = model.image {
+                    imageData = try? get(imageId)
+                } else {
+                    imageData = nil
+                }
+                return (model: model, imageData: imageData)
+            }
+
+        let html = modelsWithImages.toHtml()
+
         _ = FileManager.default.createFile(
-            atPath: to.path + "/index.html",
+            atPath: to.appendingPathComponent("index.html").path,
             contents: html.data(using: .utf8),
             attributes: nil
         )
-        let content = to.appendingPathComponent("/content")
-        try FileManager.default.createDirectory(at: content, withIntermediateDirectories: false)
-        for i in receiptArray {
-guard let imageId = i.image else {
-    continue
-}
+
+        let content = to.appendingPathComponent("content")
+        try FileManager.default.createDirectory(
+            at: content,
+            withIntermediateDirectories: false
+        )
+
+        for model in receiptArray {
+            guard let imageId = model.image else { continue }
+
             if let data = try? get(imageId) {
                 let imagePath = content.appendingPathComponent("\(imageId).jpg")
                 _ = FileManager.default.createFile(
