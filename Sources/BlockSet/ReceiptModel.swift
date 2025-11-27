@@ -1,45 +1,121 @@
 import Foundation
 
-public struct LocationModel: Codable, Hashable {
-    public var latitude: Double = 0
-    public var longitude: Double = 0
+public struct ReceiptModel: Codable {
+    // Receipt or check image (hash)
+    public var image: String?
+
+    /** Date or timestamp of the receipt */
+    public var date: Double?
+
+    /** Total amount on the receipt, stored as a decimal type for cross-platform safety */
+    public var price: Decimal?
+
+    /** Title that the user can assign to the receipt */
+    public var title: String?
+
+    /** Description that the user can add to the receipt */
+    public var description: String?
+
+    /** Additional notes or memos related to the receipt */
+    public var notes: String?
+
+    /** List of individual items extracted from the receipt */
+    public var items: [ReceiptItem]?
+
+    /** Location information associated with the receipt */
+    public var location: Location?
+
+    /** Current processing status of the receipt */
+    public var processingStatus: ReceiptProcessingStatus?
 
     public init() {}
 }
 
-public struct ImageModel: Codable, Hashable {
-    public var image: String = ""
-    public var date: Double = 0
-    public var location: LocationModel = LocationModel()
+// MARK: - Location model
+public struct Location: Codable {
+    public var latitude: Double
+    public var longitude: Double
+    public var formattedAddress: String?
+    public var source: LocationSource?
+
+    public init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
+
+// MARK: - Location source types
+public enum LocationSource: Codable {
+    /** Location extracted from image metadata (EXIF) */
+    case exif
+    /** Location extracted by AI analysis */
+    case ai
+    /** Location entered manually by the user */
+    case manual
+}
+
+// MARK: - Receipt item model
+public struct ReceiptItem: Codable {
+    public var name: String?
+    public var quantity: Double?
+    public var unitPrice: Decimal?
+    public var totalPrice: Decimal?
 
     public init() {}
 }
 
-public struct ReceiptModel: Codable, Hashable {
-    public var image: ImageModel = ImageModel()
-    public var price: String = ""
-    public var title: String = ""
-    public var description: String = ""
-    public var imageList: [String]? = nil
-
-    public var date: Double = 0
-    public var location: LocationModel = LocationModel()
-
-    public init() {}
+// MARK: - OCR metadata
+public struct CheckMetadata: Codable {
+    /** Confidence score of the OCR extraction */
+    public var confidenceScore: Double?
+    /** Identifier of the source image */
+    public var sourceImageId: String?
+    /** OCR provider used for extraction */
+    public var ocrProvider: String?
+    /** List of warnings generated during the extraction process */
+    public var warnings: [String]?
 }
+
+// MARK: - Receipt processing status
+public enum ReceiptProcessingStatus: String, Codable {
+    case draft
+    case processing
+    case processed
+    case applied
+    case failed
+}
+
 
 extension Cas {
     public func report(receiptArray: [ReceiptModel], to: URL) throws {
-        let html = receiptArray.toHtml()
+        let modelsWithImages: [(model: ReceiptModel, imageData: Data?)] =
+            receiptArray.map { model in
+                let imageData: Data?
+                if let imageId = model.image {
+                    imageData = try? get(imageId)
+                } else {
+                    imageData = nil
+                }
+                return (model: model, imageData: imageData)
+            }
+
+        let html = modelsWithImages.toHtml()
+
         _ = FileManager.default.createFile(
-            atPath: to.path + "/index.html",
+            atPath: to.appendingPathComponent("index.html").path,
             contents: html.data(using: .utf8),
             attributes: nil
         )
-        let content = to.appendingPathComponent("/content")
-        try FileManager.default.createDirectory(at: content, withIntermediateDirectories: false)
-        for i in receiptArray {
-            let imageId = i.image.image
+
+        let content = to.appendingPathComponent("content")
+        try FileManager.default.createDirectory(
+            at: content,
+            withIntermediateDirectories: false
+        )
+
+        for model in receiptArray {
+            guard let imageId = model.image else { continue }
+
             if let data = try? get(imageId) {
                 let imagePath = content.appendingPathComponent("\(imageId).jpg")
                 _ = FileManager.default.createFile(
