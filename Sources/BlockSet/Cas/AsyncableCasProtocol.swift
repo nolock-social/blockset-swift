@@ -13,9 +13,6 @@ public protocol AsyncableCasProtocol: Sendable {
 
     /// Lists all stored identifiers.
     func allIdentifiers() async throws -> [String]
-
-    /// Returns the file URL corresponding to a stored block.
-    func fileURL(forHash hash: String) async throws -> URL
 }
 
 extension AsyncableCasProtocol {

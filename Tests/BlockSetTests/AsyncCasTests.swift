@@ -32,7 +32,7 @@ struct AsyncFileCasTests {
 
     @Test
     func parallelStores() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("paralleStores") else {
             return
         }
 
@@ -51,7 +51,7 @@ struct AsyncFileCasTests {
 
     @Test
     func idempotentStores() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("idempotentStores") else {
             return
         }
 
@@ -75,7 +75,7 @@ struct AsyncFileCasTests {
 
     @Test
     func comparePaths() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("compareParths") else {
             return
         }
 
@@ -100,7 +100,7 @@ struct AsyncFileCasTests {
 
     @Test
     func compareData() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("compareData") else {
             return
         }
 
@@ -119,7 +119,7 @@ struct AsyncFileCasTests {
 
     @Test
     func checkAllMutables() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("checkAllMutables") else {
             return
         }
 
@@ -176,7 +176,7 @@ struct AsyncFileCasTests {
 
     @Test
     func checkActiveMutables() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("checkActiveMutables") else {
             return
         }
 
@@ -199,7 +199,7 @@ struct AsyncFileCasTests {
 
     @Test
     func checkAllIdentifiers() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("checkAllIdentifiers") else {
             return
         }
 
@@ -228,7 +228,7 @@ struct AsyncFileCasTests {
 
     @Test
     func mutableDeleting() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("mutableDeleting") else {
             return
         }
 
@@ -250,7 +250,7 @@ struct AsyncFileCasTests {
 
     @Test
     func loadDeletedMutable() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("loadDeletedMutable") else {
             return
         }
 
@@ -271,7 +271,7 @@ struct AsyncFileCasTests {
     }
 
     @Test func modelDeleting() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("modelDeleting") else {
             return
         }
 
@@ -311,7 +311,7 @@ struct AsyncFileCasTests {
 
     @Test
     func deletedModel() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("deletedModel") else {
             return
         }
 
@@ -352,7 +352,7 @@ struct AsyncFileCasTests {
 
     @Test
     func checkDataAfterStore() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("checkDataAfterStore") else {
             return
         }
 
@@ -398,7 +398,7 @@ struct AsyncFileCasTests {
     //MARK: - Check data after delete
 
     @Test func checkDataAfterDeleted() async throws {
-        guard let dir = createDirectory() else {
+        guard let dir = createDirectory("checkDataAfterDeleted") else {
             return
         }
 
@@ -446,14 +446,12 @@ struct AsyncFileCasTests {
 
 //MARK:  Create Directory
 
-func createDirectory() -> URL? {
+func createDirectory(_ directoryName: String) -> URL? {
     guard let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
         return nil
     }
 
-    let directoryID = UUID().uuidString
-
-    let path = dir.appending(path: "Storage/\(directoryID)", directoryHint: .isDirectory)
+    let path = dir.appending(path: "Storage/\(directoryName)", directoryHint: .isDirectory)
 
     do {
 

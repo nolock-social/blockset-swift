@@ -126,4 +126,21 @@ extension Cas {
         }
         return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
     }
+
+    @discardableResult
+    public func saveJsonModel<T: Encodable>(_ model: Model<T>) throws -> String? {
+        try saveJson(model.s.mutable, model.s.value)
+    }
+
+    public func loadJsonModel<T: Decodable>(_ mutable: Mutable) throws -> Model<T>? {
+        guard let value: T = try loadJson(mutable) else {
+            return nil
+        }
+        return Model(ModelStruct(mutable: mutable, value: value))
+    }
+    
+    @discardableResult
+    public func deleteModel<T>(_ model: Model<T>) throws -> String? {
+        try delete(model.s.mutable)
+    }
 }
