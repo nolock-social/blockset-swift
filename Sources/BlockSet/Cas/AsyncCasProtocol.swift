@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol AsyncableCasProtocol: Sendable {
+public protocol AsyncableCas: Actor {
     /// Return hash for any data
     func hash(for data: Data) async -> String
 
@@ -15,7 +15,7 @@ public protocol AsyncableCasProtocol: Sendable {
     func allIdentifiers() async throws -> [String]
 }
 
-extension AsyncableCasProtocol {
+extension AsyncableCas {
     //MARK: - Save
 
     /// Saves an encodable value as JSON into CAS.

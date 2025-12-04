@@ -1,6 +1,7 @@
 import Foundation
 import Crypto
 
+//MARK: - Sync MemCas
 public class MemCas: Cas {
     private var blocks: [String: Data] = [:]
 

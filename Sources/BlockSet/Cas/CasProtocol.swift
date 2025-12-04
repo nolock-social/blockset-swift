@@ -1,7 +1,7 @@
 import Foundation
 import Crypto
 
-public protocol Cas: AnyObject {
+public protocol Cas {
     /// Returns identifier (hash) for the given data block.
     func id(_ data: Data) -> String
 
@@ -28,7 +28,8 @@ extension Data {
 private struct CasWithSet {
     let cas: Cas
     let set: Set<String>
-    nonisolated func fetchFrom(_ b: CasWithSet) throws {
+
+    func fetchFrom(_ b: CasWithSet) throws {
         let diff = b.set.subtracting(set)
         for id in diff {
             guard let data = try b.cas.get(id) else {
@@ -138,7 +139,7 @@ extension Cas {
         }
         return Model(ModelStruct(mutable: mutable, value: value))
     }
-    
+
     @discardableResult
     public func deleteModel<T>(_ model: Model<T>) throws -> String? {
         try delete(model.s.mutable)
