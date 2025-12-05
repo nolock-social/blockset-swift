@@ -1,35 +1,56 @@
 import Foundation
+import Crypto
 
-struct Commit: Codable {
-    var parent: [String]
-    var blob: String?
+public protocol Cas {
+    /// Returns identifier (hash) for the given data block.
+    func id(_ data: Data) -> String
+
+    /// Add the given data block to the CAS and returns the data identifier.
+    @discardableResult
+    func add(_ data: Data) throws -> String
+
+    func get(_ id: String) throws -> Data?
+
+    /// Returns a list of all identifiers.
+    func list() throws -> [String]
 }
 
-struct Parent {
-    var commitId: String
-    var blobId: String?
+extension Data {
+    func sha256Id() -> String {
+        SHA256.hash(data: self).base32()
+    }
+
+    func sha256Id() async -> String {
+        SHA256.hash(data: self).base32()
+    }
 }
 
-public class Mutable: Hashable {
-    var parent: Parent?
-    // internal:
-    init(_ parent: Parent?) {
-        self.parent = parent
-    }
-    // public:
-    public static func initial() -> Mutable {
-        Mutable(nil)
-    }
-    // Hashable:
-    public static func == (lhs: Mutable, rhs: Mutable) -> Bool {
-        return lhs === rhs
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
+private struct CasWithSet {
+    let cas: Cas
+    let set: Set<String>
+
+    func fetchFrom(_ b: CasWithSet) throws {
+        let diff = b.set.subtracting(set)
+        for id in diff {
+            guard let data = try b.cas.get(id) else {
+                continue
+            }
+            try self.cas.add(data)
+        }
     }
 }
 
 extension Cas {
+    private func withSet() throws -> CasWithSet {
+        CasWithSet(cas: self, set: Set(try list()))
+    }
+    /// Synchronizes two CASes.
+    public func sync(_ cas: Cas) throws {
+        let a = try self.withSet()
+        let b = try cas.withSet()
+        try a.fetchFrom(b)
+        try b.fetchFrom(a)
+    }
 
     @discardableResult
     public func saveData(_ mutable: Mutable, _ data: Data?) throws -> String? {
@@ -105,5 +126,22 @@ extension Cas {
             }
         }
         return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
+    }
+
+    @discardableResult
+    public func saveJsonModel<T: Encodable>(_ model: Model<T>) throws -> String? {
+        try saveJson(model.s.mutable, model.s.value)
+    }
+
+    public func loadJsonModel<T: Decodable>(_ mutable: Mutable) throws -> Model<T>? {
+        guard let value: T = try loadJson(mutable) else {
+            return nil
+        }
+        return Model(ModelStruct(mutable: mutable, value: value))
+    }
+
+    @discardableResult
+    public func deleteModel<T>(_ model: Model<T>) throws -> String? {
+        try delete(model.s.mutable)
     }
 }
