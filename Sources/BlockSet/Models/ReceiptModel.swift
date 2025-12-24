@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ReceiptModel: Codable {
+public struct ReceiptModel: Codable, Sendable {
     // Receipt or check image (hash)
     public var image: String?
 
@@ -32,7 +32,7 @@ public struct ReceiptModel: Codable {
 }
 
 // MARK: - Location model
-public struct Location: Codable {
+public struct Location: Codable, Sendable {
     public var latitude: Double
     public var longitude: Double
     public var formattedAddress: String?
@@ -45,7 +45,7 @@ public struct Location: Codable {
 }
 
 // MARK: - Location source types
-public enum LocationSource: Codable {
+public enum LocationSource: Codable, Sendable {
     /** Location extracted from image metadata (EXIF) */
     case exif
     /** Location extracted by AI analysis */
@@ -55,7 +55,7 @@ public enum LocationSource: Codable {
 }
 
 // MARK: - Receipt item model
-public struct ReceiptItem: Codable {
+public struct ReceiptItem: Codable, Sendable {
     public var name: String?
     public var quantity: Double?
     public var unitPrice: Decimal?
@@ -77,7 +77,7 @@ public struct CheckMetadata: Codable {
 }
 
 // MARK: - Receipt processing status
-public enum ReceiptProcessingStatus: String, Codable {
+public enum ReceiptProcessingStatus: String, Codable, Sendable {
     case draft
     case processing
     case processed
