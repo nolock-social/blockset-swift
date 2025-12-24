@@ -32,6 +32,7 @@ public struct ReceiptModel: Codable, Sendable {
 }
 
 // MARK: - Location model
+
 public struct Location: Codable, Sendable {
     public var latitude: Double
     public var longitude: Double
@@ -45,6 +46,7 @@ public struct Location: Codable, Sendable {
 }
 
 // MARK: - Location source types
+
 public enum LocationSource: Codable, Sendable {
     /** Location extracted from image metadata (EXIF) */
     case exif
@@ -55,6 +57,7 @@ public enum LocationSource: Codable, Sendable {
 }
 
 // MARK: - Receipt item model
+
 public struct ReceiptItem: Codable, Sendable {
     public var name: String?
     public var quantity: Double?
@@ -77,6 +80,7 @@ public struct CheckMetadata: Codable {
 }
 
 // MARK: - Receipt processing status
+
 public enum ReceiptProcessingStatus: String, Codable, Sendable {
     case draft
     case processing
