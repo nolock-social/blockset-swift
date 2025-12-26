@@ -234,33 +234,32 @@ extension AsyncableCas {
 
 
     /// Returns only deleted mutables.
-    public func listOfDeletedMutables() async throws -> [Mutable] {
-        let ids = try await self.allIdentifiers()
+  public func listOfDeletedMutables() async throws -> [Mutable] {
+    let ids = try await self.allIdentifiers()
+    var parents: Set<String> = []
+    var commits: [String: Commit] = [:]
 
-        var parents: Set<String> = []
-        var result: [String: Commit] = [:]
-
-        return try await withThrowingTaskGroup(of: (String, Commit?).self) { group in
-            for id in ids {
-                group.addTask {
-                    (id, try await self.loadCommit(id))
-                }
+    return try await withThrowingTaskGroup(of: (String, Commit?).self) { group in
+        for id in ids {
+            group.addTask {
+                (id, try await self.loadCommit(id))
             }
-
-            for try await (id, commit) in group {
-                guard let commit, commit.blob == nil else { continue }
-
-                for p in commit.parent {
-                    result[p] = nil
-                    parents.insert(p)
-                }
-
-                if !parents.contains(id) {
-                    result[id] = commit
-                }
-            }
-
-            return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
         }
+
+        for try await (id, commit) in group {
+            guard let commit else { continue }
+            commits[id] = commit
+
+            for p in commit.parent {
+                parents.insert(p)
+            }
+        }
+
+        let result = commits.filter { id, commit in
+            commit.blob == nil && !parents.contains(id)
+        }
+
+        return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
     }
+}
 }
