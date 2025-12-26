@@ -236,9 +236,7 @@ extension AsyncableCas {
     /// Returns only deleted mutables.
     public func listOfDeletedMutables() async throws -> [Mutable] {
         let ids = try await self.allIdentifiers()
-
-        var parents: Set<String> = []
-        var result: [String: Commit] = [:]
+        var deletedMutables: [Mutable] = []
 
         return try await withThrowingTaskGroup(of: (String, Commit?).self) { group in
             for id in ids {
@@ -248,19 +246,14 @@ extension AsyncableCas {
             }
 
             for try await (id, commit) in group {
-                guard let commit, commit.blob == nil else { continue }
+                guard let commit else { continue }
 
-                for p in commit.parent {
-                    result[p] = nil
-                    parents.insert(p)
-                }
-
-                if !parents.contains(id) {
-                    result[id] = commit
+                if commit.blob == nil {
+                    deletedMutables.append(Mutable(Parent(commitId: id, blobId: nil)))
                 }
             }
 
-            return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
+            return deletedMutables
         }
     }
 }
