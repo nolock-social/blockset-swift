@@ -137,19 +137,24 @@ extension AsyncableCas {
             return nil
         }
 
-        let commitId = mutableParent.commitId
-
         let decoder = JSONDecoder()
+        var currentCommitId: String? = mutableParent.commitId
 
-        if let commit = try await loadCommit(commitId), let parentCommit = commit.parent.first {
-            if let commit = try await loadCommit(parentCommit), let blob = commit.blob, let data = try await self.retrieve(blob) {
-                return try decoder.decode(T.self, from: data)
-            } else {
+        while let commitId = currentCommitId {
+            guard let commit = try await loadCommit(commitId) else {
                 return nil
             }
-        } else {
-            return nil
+
+            if let blob = commit.blob,
+                let data = try await self.retrieve(blob)
+            {
+                return try decoder.decode(T.self, from: data)
+            }
+
+            currentCommitId = commit.parent.first
         }
+
+        return nil
     }
 
     // MARK: - Commits
@@ -232,13 +237,12 @@ extension AsyncableCas {
         }
     }
 
-
     /// Returns only deleted mutables.
     public func listOfDeletedMutables() async throws -> [Mutable] {
         let ids = try await self.allIdentifiers()
 
-        var parents: Set<String> = []
-        var result: [String: Commit] = [:]
+        var commits: [String: Commit] = [:]
+        var children: [String: Set<String>] = [:]
 
         return try await withThrowingTaskGroup(of: (String, Commit?).self) { group in
             for id in ids {
@@ -248,19 +252,23 @@ extension AsyncableCas {
             }
 
             for try await (id, commit) in group {
-                guard let commit, commit.blob == nil else { continue }
+                guard let commit else { continue }
 
-                for p in commit.parent {
-                    result[p] = nil
-                    parents.insert(p)
-                }
+                commits[id] = commit
 
-                if !parents.contains(id) {
-                    result[id] = commit
+                for parent in commit.parent {
+                    children[parent, default: []].insert(id)
                 }
             }
 
-            return result.map { Mutable(Parent(commitId: $0.key, blobId: $0.value.blob)) }
+            let deletedMutables = commits.compactMap { id, commit -> Mutable? in
+                guard commit.blob == nil else { return nil }
+                guard children[id]?.isEmpty != false else { return nil }
+
+                return Mutable(Parent(commitId: id, blobId: nil))
+            }
+
+            return deletedMutables
         }
     }
 }

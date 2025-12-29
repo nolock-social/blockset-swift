@@ -15,7 +15,7 @@ public protocol Cas {
     func list() throws -> [String]
 }
 
-extension Data {
+public extension Data {
     func sha256Id() -> String {
         SHA256.hash(data: self).base32()
     }
