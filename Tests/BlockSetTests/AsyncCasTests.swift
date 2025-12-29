@@ -441,6 +441,62 @@ struct AsyncFileCasTests {
 
         #expect(model.value == deletedModel)
     }
+
+    @Test func reactivateDeletedModel() async throws {
+        guard let dir = createDirectory("reactivateDeletedModel") else {
+            return
+        }
+
+        let cas: AsyncableCas = AsyncFileCas(dir)
+
+        try await cas.saveJSONModel(model)
+        var mutables = try await cas.listOfActiveMutables()
+        #expect(mutables.count == 1)
+
+        var models: [ModelForTest] = []
+
+        for i in mutables {
+            if let model: Model<ModelForTest> = try? await cas.loadJSONModel(i) {
+                models.append(model.value)
+            }
+        }
+
+        #expect(models.first! == model.value)
+        models.removeAll()
+
+        try await cas.deleteModel(model)
+        var deletedMutables = try await cas.listOfDeletedMutables()
+        #expect(deletedMutables.count == 1)
+
+        var deletedModels: [ModelForTest] = []
+
+         for i in deletedMutables {
+            if let model: Model<ModelForTest> = try? await cas.loadDeletedJSONModel(i) {
+                deletedModels.append(model.value)
+            }
+        }
+
+        #expect(deletedModels.first! == model.value)
+
+        mutables = try await cas.listOfActiveMutables()
+        #expect(mutables.count == 0)
+
+        try await cas.saveJSONModel(model)
+
+        mutables = try await cas.listOfActiveMutables()
+        #expect(mutables.count == 1)
+
+        deletedMutables = try await cas.listOfDeletedMutables()
+        #expect(deletedMutables.count == 0)
+
+        for i in mutables {
+            if let model: Model<ModelForTest> = try? await cas.loadJSONModel(i) {
+                models.append(model.value)
+            }
+        }
+
+        #expect(models.first! == model.value)
+    }
 }
 
 //MARK: - Helpers
